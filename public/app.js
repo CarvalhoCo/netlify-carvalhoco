@@ -22,7 +22,6 @@ const formatadorHoraBrasilia = new Intl.DateTimeFormat("pt-BR", {
 });
 
 const TAMANHO_MINIMO_BUSCA = 2;
-const LIMITE_RESULTADOS = 20;
 
 const HORARIOS_FUNCIONAMENTO = {
   0: { dia: "domingo", abre: "11:00", fecha: "17:00" },
@@ -33,26 +32,6 @@ const HORARIOS_FUNCIONAMENTO = {
   5: { dia: "sexta-feira", abre: "14:00", fecha: "23:00" },
   6: { dia: "sabado", abre: "11:00", fecha: "23:00" }
 };
-
-const PRODUTOS_EXEMPLO = [
-  { nome: "Heineken Long Neck 330ml", precoVenda: 9.9, codigoBarras: "7891234500011" },
-  { nome: "Budweiser Long Neck 330ml", precoVenda: 8.9, codigoBarras: "7891234500012" },
-  { nome: "Corona Extra 330ml", precoVenda: 11.5, codigoBarras: "7891234500013" },
-  { nome: "Stella Artois 330ml", precoVenda: 9.5, codigoBarras: "7891234500014" },
-  { nome: "Skol Lata 350ml", precoVenda: 4.5, codigoBarras: "7891234500015" },
-  { nome: "Brahma Duplo Malte 350ml", precoVenda: 5.2, codigoBarras: "7891234500016" },
-  { nome: "Guarana Antarctica 2L", precoVenda: 12.9, codigoBarras: "7891234500017" },
-  { nome: "Coca-Cola 2L", precoVenda: 13.9, codigoBarras: "7891234500018" },
-  { nome: "Red Bull 250ml", precoVenda: 10.9, codigoBarras: "7891234500019" },
-  { nome: "Agua Mineral sem Gas 500ml", precoVenda: 3.5, codigoBarras: "7891234500020" },
-  { nome: "Whisky Jack Daniel's 1L", precoVenda: 169.9, codigoBarras: "7891234500021" },
-  { nome: "Vodka Smirnoff 998ml", precoVenda: 39.9, codigoBarras: "7891234500022" },
-  {
-    nome: "COMBO BOMBAY SAPPHIRE DRY 750ML RED BULL MONSTER",
-    precoVenda: 149,
-    codigoBarras: "7891234500023"
-  }
-];
 
 let controladorRequisicao = null;
 let ultimaBusca = "";
@@ -189,31 +168,6 @@ function normalizarTexto(texto) {
   return String(texto ?? "").trim();
 }
 
-function normalizarParaBusca(texto) {
-  return String(texto ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
-function buscarProdutosExemplo(termo) {
-  const termoNormalizado = normalizarParaBusca(termo);
-  const termoSemEspacos = termoNormalizado.replace(/\s+/g, "");
-
-  return PRODUTOS_EXEMPLO.filter((produto) => {
-    const nomeNormalizado = normalizarParaBusca(produto.nome);
-    const codigoNormalizado = normalizarParaBusca(produto.codigoBarras).replace(/\s+/g, "");
-
-    return (
-      nomeNormalizado.includes(termoNormalizado) ||
-      codigoNormalizado.includes(termoSemEspacos)
-    );
-  })
-    .map(({ nome, precoVenda }) => ({ nome, precoVenda }))
-    .slice(0, LIMITE_RESULTADOS);
-}
-
 function definirMensagem(texto, tipo = "info") {
   if (!mensagemStatus) {
     return;
@@ -314,8 +268,7 @@ async function executarBusca(termoDigitado) {
   definirMensagem("Consultando preco atualizado...");
 
   try {
-    const produtosApi = await buscarProdutos(termo);
-    const produtos = produtosApi.length > 0 ? produtosApi : buscarProdutosExemplo(termo);
+    const produtos = await buscarProdutos(termo);
 
     if (ultimaBusca !== termo) {
       return;
@@ -325,13 +278,6 @@ async function executarBusca(termoDigitado) {
     definirMensagem(`${produtos.length} resultado(s) encontrado(s).`);
   } catch (erro) {
     if (erro.name === "AbortError") {
-      return;
-    }
-
-    const produtosExemplo = buscarProdutosExemplo(termo);
-    if (produtosExemplo.length > 0) {
-      renderizarResultados(produtosExemplo);
-      definirMensagem("Mostrando produtos de exemplo para visualizacao.");
       return;
     }
 
