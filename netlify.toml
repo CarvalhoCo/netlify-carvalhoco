@@ -1,0 +1,10 @@
+[build]
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/precos"
+  to = "/.netlify/functions/buscar-precos"
+  status = 200

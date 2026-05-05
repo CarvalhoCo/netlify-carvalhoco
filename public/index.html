@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adega Carvalho | Consulta de Precos</title>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.css" rel="stylesheet" />
+    <style>
+      input[type="search"]::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+      }
+    </style>
+  </head>
+  <body style="background-color: #111111; color: #EEEEEE">
+    <main class="flex min-h-screen items-center justify-center p-4">
+      <section class="w-full max-w-3xl space-y-4">
+        <div
+          class="w-full rounded-lg border p-4"
+          style="border-color: #343434; background-color: #232323"
+        >
+          <div class="flex items-center justify-between gap-4">
+            <p class="text-base font-semibold" style="color: #EEEEEE">Carvalho&Co.</p>
+            <p id="hora-brasilia" class="text-base font-semibold text-right" style="color: #EEEEEE">
+              --:--:--
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="w-full rounded-lg border bg-gray-900 p-6 text-center"
+          style="border-color: #343434; background-color: #232323"
+        >
+          <p id="contador-detalhe-titulo" class="text-xl font-semibold" style="color: #EEEEEE"></p>
+          <p
+            id="contador-detalhe-valor"
+            class="mt-2 text-4xl font-bold tracking-tight"
+            style="color: #EEEEEE"
+          ></p>
+          <p id="contador-status" class="mt-2 text-lg" style="color: #EEEEEE"></p>
+        </div>
+
+        <div
+          class="w-full rounded-lg border bg-gray-900 p-6"
+          style="border-color: #343434; background-color: #232323"
+        >
+          <p class="mb-3 text-base font-medium" style="color: #EEEEEE">Consulte um produto</p>
+
+          <div class="relative" id="campo-busca">
+            <form class="w-full">
+              <label for="busca" class="sr-only">Buscar produto</label>
+              <div class="relative">
+                <div class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+                  <svg
+                    class="h-4 w-4"
+                    style="color: #EEEEEE"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  id="busca"
+                  class="block w-full rounded-lg border bg-gray-800 p-4 ps-10 pe-24 text-sm focus:border-[#343434] focus:ring-[#343434]"
+                  style="color: #EEEEEE; border-color: #343434; background-color: #1A1A1A"
+                  type="search"
+                  autocomplete="off"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="lista-resultados"
+                />
+                <button
+                  id="botao-busca"
+                  type="submit"
+                  class="absolute end-2.5 bottom-2.5 rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-600"
+                  style="background-color: #EEEEEE; border-color: #343434; color: #111111"
+                >
+                  Buscar
+                </button>
+              </div>
+            </form>
+
+            <ul
+              id="lista-resultados"
+              class="absolute left-0 right-0 top-[calc(100%-1px)] z-20 hidden max-h-96 overflow-y-auto rounded-b-lg border border-t-0 bg-gray-800"
+              style="border-color: #343434; background-color: #1A1A1A"
+              role="listbox"
+            ></ul>
+          </div>
+
+        </div>
+
+        <div
+          class="w-full rounded-lg border bg-gray-900 p-6"
+          style="border-color: #343434; background-color: #232323"
+        >
+          <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0 flex-1 text-left text-base font-medium leading-6" style="color: #EEEEEE">
+              <p>Entregas: Parque das Américas e Aliança</p>
+              <p>Taxa de Entrega: R$5</p>
+              <p>Tempo Estimado: 10 a 60 min</p>
+              <p>Pagamento: Pix e cartão de crédito</p>
+            </div>
+            <a
+              href="https://wa.me/5511910100155?text=Ola%2C%20quero%20fazer%20um%20pedido."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-colors hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-600"
+              style="background-color: #EEEEEE; border-color: #343434; color: #111111"
+            >
+              Pedir no WhatsApp
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
