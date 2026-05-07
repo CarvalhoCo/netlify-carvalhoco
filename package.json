@@ -4,5 +4,22 @@
   "type": "module",
   "dependencies": {
     "@netlify/blobs": "^10.7.4"
-  }
+  },
+  "description": "MVP de consulta publica com:",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarvalhoCo/netlify-carvalhoco.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CarvalhoCo/netlify-carvalhoco/issues"
+  },
+  "homepage": "https://github.com/CarvalhoCo/netlify-carvalhoco#readme"
 }

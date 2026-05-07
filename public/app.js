@@ -7,6 +7,7 @@ const contadorStatus = document.querySelector("#contador-status");
 const contadorDetalheTitulo = document.querySelector("#contador-detalhe-titulo");
 const contadorDetalheValor = document.querySelector("#contador-detalhe-valor");
 const horaBrasilia = document.querySelector("#hora-brasilia");
+const marcaInicial = document.querySelector(".marca-inicial");
 
 const formatadorMoeda = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -22,6 +23,11 @@ const formatadorHoraBrasilia = new Intl.DateTimeFormat("pt-BR", {
 
 const TAMANHO_MINIMO_BUSCA = 2;
 const CHAVE_CONFIG_HORARIOS_LOCAL = "carvalho_horarios_config";
+const CARACTERES_RUIDO_MARCA = "!@#$%&*+-=<>?/\\|[]{}~^0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const ROTACAO_TEXTO_MARCA = ["Carvalho&Co.", "Adega & Tabacaria"];
+const INTERVALO_ROTACAO_MARCA_MS = 10000;
+const INTERVALO_QUADRO_SCRAMBLE_MARCA_MS = 34;
+const PASSO_SCRAMBLE_MARCA = 1.15;
 
 const HORARIOS_SEMANA_PADRAO = {
   0: { day: "domingo", closed: false, open: "11:00", close: "17:00" },
@@ -362,6 +368,113 @@ function normalizarTexto(texto) {
   return String(texto ?? "").trim();
 }
 
+function sortearCaractereRuidoMarca() {
+  const indice = Math.floor(Math.random() * CARACTERES_RUIDO_MARCA.length);
+  return CARACTERES_RUIDO_MARCA[indice] || "#";
+}
+
+function montarQuadroScrambleMarca(textoOrigem, textoDestino, progresso) {
+  const tamanhoMaximo = Math.max(textoOrigem.length, textoDestino.length);
+  const limite = Math.max(0, Math.min(tamanhoMaximo, Math.floor(progresso)));
+
+  return Array.from({ length: tamanhoMaximo }, (_, indice) => {
+    const caractereDestino = textoDestino[indice] || "";
+    const caractereOrigem = textoOrigem[indice] || "";
+    const caractereBase = caractereDestino || caractereOrigem;
+
+    if (caractereBase === " ") {
+      return " ";
+    }
+
+    if (indice < limite) {
+      return caractereDestino;
+    }
+
+    if (!caractereBase) {
+      return "";
+    }
+
+    if (Math.random() < 0.16) {
+      return caractereBase;
+    }
+
+    return sortearCaractereRuidoMarca();
+  }).join("");
+}
+
+function animarTransicaoScrambleMarca(textoOrigem, textoDestino) {
+  if (!marcaInicial) {
+    return Promise.resolve();
+  }
+
+  const tamanhoMaximo = Math.max(textoOrigem.length, textoDestino.length);
+  if (tamanhoMaximo === 0) {
+    marcaInicial.textContent = "";
+    return Promise.resolve();
+  }
+
+  return new Promise((resolver) => {
+    let progresso = 0;
+
+    const idIntervalo = setInterval(() => {
+      progresso += PASSO_SCRAMBLE_MARCA;
+      if (progresso >= tamanhoMaximo) {
+        clearInterval(idIntervalo);
+        marcaInicial.textContent = textoDestino;
+        resolver();
+        return;
+      }
+      marcaInicial.textContent = montarQuadroScrambleMarca(textoOrigem, textoDestino, progresso);
+    }, INTERVALO_QUADRO_SCRAMBLE_MARCA_MS);
+  });
+}
+
+function iniciarAnimacaoMarcaAgressiva() {
+  if (!marcaInicial) {
+    return;
+  }
+
+  const textosRotacao = ROTACAO_TEXTO_MARCA
+    .map((item) => normalizarTexto(item))
+    .filter(Boolean);
+
+  if (textosRotacao.length === 0) {
+    return;
+  }
+
+  let indiceAtual = 0;
+  let animando = false;
+
+  marcaInicial.textContent = textosRotacao[indiceAtual];
+  marcaInicial.setAttribute("aria-label", textosRotacao[indiceAtual]);
+
+  const executarProximaTroca = async () => {
+    if (animando) {
+      return;
+    }
+
+    animando = true;
+    const textoOrigem = textosRotacao[indiceAtual];
+    const proximoIndice = (indiceAtual + 1) % textosRotacao.length;
+    const textoDestino = textosRotacao[proximoIndice];
+
+    await animarTransicaoScrambleMarca(textoOrigem, textoDestino);
+    indiceAtual = proximoIndice;
+    marcaInicial.setAttribute("aria-label", textoDestino);
+    animando = false;
+  };
+
+  const idRotacao = setInterval(() => {
+    executarProximaTroca();
+  }, INTERVALO_ROTACAO_MARCA_MS);
+
+  const limparTimers = () => {
+    clearInterval(idRotacao);
+  };
+
+  window.addEventListener("beforeunload", limparTimers, { once: true });
+}
+
 function abrirDropdown() {
   if (!listaResultados || !inputBusca) {
     return;
@@ -524,6 +637,7 @@ carregarConfiguracaoHorarios().finally(() => {
   atualizarPainelFuncionamento();
 });
 atualizarHoraBrasilia();
+iniciarAnimacaoMarcaAgressiva();
 setInterval(() => {
   atualizarPainelFuncionamento();
   atualizarHoraBrasilia();

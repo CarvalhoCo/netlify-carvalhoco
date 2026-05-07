@@ -14,7 +14,12 @@
   color: #eeeeee;
   line-height: 1;
   font-family: "Control Upright", sans-serif;
-  letter-spacing: 0.036em;
+  font-feature-settings: "ss04" 1;
+  letter-spacing: 0.12em;
+}
+
+.pagina-inicial {
+  text-transform: uppercase;
 }
 
 a,
@@ -124,7 +129,7 @@ textarea:focus-visible,
 .marca-busca,
 .relogio-busca {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: #eeeeee;
 }
@@ -141,7 +146,7 @@ textarea:focus-visible,
 .titulo-contagem-inicial,
 .status-contagem-inicial {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: #eeeeee;
 }
@@ -150,7 +155,7 @@ textarea:focus-visible,
   margin: 16px 0 0;
   font-size: clamp(2.2rem, 8vw, 3rem);
   font-weight: 700;
-  letter-spacing: 0.036em;
+  letter-spacing: 0.12em;
   color: #eeeeee;
   line-height: 1;
 }
@@ -170,7 +175,7 @@ textarea:focus-visible,
   margin: 0;
   width: 100%;
   text-align: center;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #eeeeee;
 }
@@ -180,7 +185,7 @@ textarea:focus-visible,
   align-items: center;
   justify-content: center;
   padding: 12px 24px;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .principal-busca {
