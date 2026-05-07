@@ -100,7 +100,6 @@ textarea:focus-visible,
 }
 
 .cartao-inicial,
-.cartao-busca,
 .cartao-administracao,
 .cartao-interno-administracao {
   width: 100%;
@@ -111,7 +110,6 @@ textarea:focus-visible,
 }
 
 .cartao-inicial,
-.cartao-busca,
 .cartao-administracao {
   padding: 16px;
 }
@@ -132,6 +130,11 @@ textarea:focus-visible,
   font-size: 20px;
   font-weight: 600;
   color: #eeeeee;
+}
+
+.marca-inicial,
+.marca-busca {
+  text-transform: uppercase;
 }
 
 .relogio-inicial,
@@ -260,15 +263,17 @@ textarea:focus-visible,
   margin: 0;
   padding: 0;
   width: 100%;
+  box-sizing: border-box;
   border: 1px solid #343434;
   border-top: 0;
   background-color: #1a1a1a;
 }
 
 .mensagem-resultados-busca {
-  padding: 10px 16px;
+  padding: 16px;
   font-size: 14px;
   color: #eeeeee;
+  text-align: center;
 }
 
 .linha-resultado-busca {

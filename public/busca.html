@@ -47,8 +47,7 @@
         gap: 16px;
       }
 
-      .cartao-inicial,
-      .cartao-busca {
+      .cartao-inicial {
         width: 100%;
         border: 1px solid #343434;
         border-radius: 0;
@@ -70,6 +69,10 @@
         font-size: 20px;
         font-weight: 600;
         color: #eeeeee;
+      }
+
+      .marca-busca {
+        text-transform: uppercase;
       }
 
       .relogio-busca {
@@ -145,15 +148,17 @@
         margin: 0;
         padding: 0;
         width: 100%;
+        box-sizing: border-box;
         border: 1px solid #343434;
         border-top: 0;
         background-color: #1a1a1a;
       }
 
       .mensagem-resultados-busca {
-        padding: 10px 16px;
+        padding: 16px;
         font-size: 14px;
         color: #eeeeee;
+        text-align: center;
       }
 
       @media (min-width: 768px) {
@@ -169,7 +174,7 @@
   <body class="pagina-busca">
     <main class="principal-busca">
       <section class="conteudo-busca">
-        <div class="cartao-inicial cartao-busca">
+        <div class="cartao-inicial">
           <div class="linha-cabecalho-busca">
             <p class="marca-busca">Carvalho&Co.</p>
             <p id="hora-brasilia" class="relogio-busca">--:--:--</p>
@@ -213,7 +218,7 @@
           </form>
 
           <ul id="lista-resultados" class="lista-resultados-busca" role="listbox">
-            <li class="mensagem-resultados-busca">Digite pelo menos 2 caracteres.</li>
+            <li class="mensagem-resultados-busca">Digite o nome do produto.</li>
           </ul>
         </div>
       </section>

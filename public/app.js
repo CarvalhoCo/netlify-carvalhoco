@@ -7,7 +7,7 @@ const contadorStatus = document.querySelector("#contador-status");
 const contadorDetalheTitulo = document.querySelector("#contador-detalhe-titulo");
 const contadorDetalheValor = document.querySelector("#contador-detalhe-valor");
 const horaBrasilia = document.querySelector("#hora-brasilia");
-const marcaInicial = document.querySelector(".marca-inicial");
+const marcaTopo = document.querySelector(".marca-inicial, .marca-busca");
 const painelFuncionamentoAtivo = Boolean(
   contadorStatus && contadorDetalheTitulo && contadorDetalheValor
 );
@@ -410,13 +410,13 @@ function montarQuadroScrambleMarca(textoOrigem, textoDestino, progresso) {
 }
 
 function animarTransicaoScrambleMarca(textoOrigem, textoDestino) {
-  if (!marcaInicial) {
+  if (!marcaTopo) {
     return Promise.resolve();
   }
 
   const tamanhoMaximo = Math.max(textoOrigem.length, textoDestino.length);
   if (tamanhoMaximo === 0) {
-    marcaInicial.textContent = "";
+    marcaTopo.textContent = "";
     return Promise.resolve();
   }
 
@@ -427,17 +427,17 @@ function animarTransicaoScrambleMarca(textoOrigem, textoDestino) {
       progresso += PASSO_SCRAMBLE_MARCA;
       if (progresso >= tamanhoMaximo) {
         clearInterval(idIntervalo);
-        marcaInicial.textContent = textoDestino;
+        marcaTopo.textContent = textoDestino;
         resolver();
         return;
       }
-      marcaInicial.textContent = montarQuadroScrambleMarca(textoOrigem, textoDestino, progresso);
+      marcaTopo.textContent = montarQuadroScrambleMarca(textoOrigem, textoDestino, progresso);
     }, INTERVALO_QUADRO_SCRAMBLE_MARCA_MS);
   });
 }
 
 function iniciarAnimacaoMarcaAgressiva() {
-  if (!marcaInicial) {
+  if (!marcaTopo) {
     return;
   }
 
@@ -452,8 +452,8 @@ function iniciarAnimacaoMarcaAgressiva() {
   let indiceAtual = 0;
   let animando = false;
 
-  marcaInicial.textContent = textosRotacao[indiceAtual];
-  marcaInicial.setAttribute("aria-label", textosRotacao[indiceAtual]);
+  marcaTopo.textContent = textosRotacao[indiceAtual];
+  marcaTopo.setAttribute("aria-label", textosRotacao[indiceAtual]);
 
   const executarProximaTroca = async () => {
     if (animando) {
@@ -467,7 +467,7 @@ function iniciarAnimacaoMarcaAgressiva() {
 
     await animarTransicaoScrambleMarca(textoOrigem, textoDestino);
     indiceAtual = proximoIndice;
-    marcaInicial.setAttribute("aria-label", textoDestino);
+    marcaTopo.setAttribute("aria-label", textoDestino);
     animando = false;
   };
 
@@ -609,7 +609,7 @@ async function executarBusca(termoDigitado) {
   ultimaBusca = termo;
 
   if (termo.length < TAMANHO_MINIMO_BUSCA) {
-    renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
+    renderizarMensagemDropdown("Digite o nome do produto.");
     return;
   }
 
@@ -640,7 +640,7 @@ formBusca?.addEventListener("submit", (evento) => {
 });
 
 if (listaResultados && inputBusca && listaResultados.children.length === 0) {
-  renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
+  renderizarMensagemDropdown("Digite o nome do produto.");
 }
 
 if (horaBrasilia) {
