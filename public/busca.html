@@ -12,12 +12,164 @@
       crossorigin
     />
     <link rel="modulepreload" href="./app.js" />
-    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      @font-face {
+        font-family: "Control Upright";
+        src: url("./fontes/control-upright-regular-tnt.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+      }
+
+      .pagina-busca {
+        margin: 0;
+        background-color: #111111;
+        color: #eeeeee;
+        line-height: 1;
+        font-family: "Control Upright", sans-serif;
+        font-feature-settings: "ss04" 1;
+        letter-spacing: 0.12em;
+      }
+
+      .principal-busca {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 16px;
+        box-sizing: border-box;
+      }
+
+      .conteudo-busca {
+        width: 100%;
+        max-width: 768px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .cartao-inicial,
+      .cartao-busca {
+        width: 100%;
+        border: 1px solid #343434;
+        border-radius: 0;
+        background-color: #1a1a1a;
+        box-sizing: border-box;
+        padding: 16px;
+      }
+
+      .linha-cabecalho-busca {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .marca-busca,
+      .relogio-busca {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #eeeeee;
+      }
+
+      .relogio-busca {
+        text-align: right;
+      }
+
+      .painel-busca {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .area-campo-busca {
+        position: relative;
+      }
+
+      .area-icone-busca {
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 12px;
+        display: flex;
+        align-items: center;
+      }
+
+      .icone-busca {
+        width: 16px;
+        height: 16px;
+        color: #eeeeee;
+      }
+
+      .entrada-busca {
+        width: 100%;
+        border: 1px solid #343434;
+        border-radius: 0;
+        background-color: #1a1a1a;
+        color: #eeeeee;
+        padding: 16px 96px 16px 40px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      .entrada-busca::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+      }
+
+      .botao-secundario {
+        border: 1px solid #343434;
+        border-radius: 0;
+        background-color: #eeeeee;
+        color: #111111;
+        font-weight: 600;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .botao-secundario--pequeno {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+
+      .botao-busca-acao {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .lista-resultados-busca {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        border: 1px solid #343434;
+        border-top: 0;
+        background-color: #1a1a1a;
+      }
+
+      .mensagem-resultados-busca {
+        padding: 10px 16px;
+        font-size: 14px;
+        color: #eeeeee;
+      }
+
+      @media (min-width: 768px) {
+        .principal-busca {
+          align-items: center;
+        }
+      }
+    </style>
+    <link rel="preload" href="./styles.css" as="style" />
+    <link rel="stylesheet" href="./styles.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="./styles.css" /></noscript>
   </head>
   <body class="pagina-busca">
     <main class="principal-busca">
       <section class="conteudo-busca">
-        <div class="cartao-busca">
+        <div class="cartao-inicial cartao-busca">
           <div class="linha-cabecalho-busca">
             <p class="marca-busca">Carvalho&Co.</p>
             <p id="hora-brasilia" class="relogio-busca">--:--:--</p>
@@ -60,7 +212,9 @@
             </div>
           </form>
 
-          <ul id="lista-resultados" class="lista-resultados-busca oculto" role="listbox"></ul>
+          <ul id="lista-resultados" class="lista-resultados-busca" role="listbox">
+            <li class="mensagem-resultados-busca">Digite pelo menos 2 caracteres.</li>
+          </ul>
         </div>
       </section>
     </main>

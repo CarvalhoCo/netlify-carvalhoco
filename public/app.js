@@ -639,7 +639,7 @@ formBusca?.addEventListener("submit", (evento) => {
   });
 });
 
-if (listaResultados && inputBusca) {
+if (listaResultados && inputBusca && listaResultados.children.length === 0) {
   renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
 }
 
