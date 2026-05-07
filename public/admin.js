@@ -173,10 +173,10 @@ function normalizarConfiguracao(entrada) {
 function construirTabelaSemana() {
   tabelaSemana.innerHTML = DIAS_SEMANA.map(
     ({ key, label }) => `
-      <tr>
+      <tr id="linha-semana-${key}">
         <td class="border px-3 py-2 font-semibold" style="border-color: #343434; background-color: #1A1A1A">${label}</td>
         <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-          <input id="semana-${key}-closed" type="checkbox" class="h-4 w-4 cursor-pointer" style="accent-color: #22c55e" />
+          <input id="semana-${key}-closed" type="checkbox" class="checkbox-destaque" />
         </td>
         <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
           <input id="semana-${key}-open" type="time" class="w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" />
@@ -200,6 +200,7 @@ function atualizarEstadoLinhaSemana(key) {
   const closed = document.querySelector(`#semana-${key}-closed`)?.checked;
   const openInput = document.querySelector(`#semana-${key}-open`);
   const closeInput = document.querySelector(`#semana-${key}-close`);
+  const linha = document.querySelector(`#linha-semana-${key}`);
 
   if (!openInput || !closeInput) {
     return;
@@ -207,6 +208,10 @@ function atualizarEstadoLinhaSemana(key) {
 
   openInput.disabled = Boolean(closed);
   closeInput.disabled = Boolean(closed);
+
+  if (linha) {
+    linha.style.boxShadow = closed ? "inset 0 0 0 2px rgba(34, 197, 94, 0.5)" : "";
+  }
 }
 
 function criarLinhaSobrescrita(item = {}) {
@@ -216,7 +221,7 @@ function criarLinhaSobrescrita(item = {}) {
       <input type="date" class="campo-data w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" value="${item.date ?? ""}" />
     </td>
     <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-      <input type="checkbox" class="campo-closed h-4 w-4 cursor-pointer" style="accent-color: #22c55e" ${item.closed ? "checked" : ""} />
+      <input type="checkbox" class="campo-closed checkbox-destaque" ${item.closed ? "checked" : ""} />
     </td>
     <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
       <input type="time" class="campo-open w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" value="${item.open ?? ""}" />
@@ -255,6 +260,7 @@ function atualizarEstadoLinhaSobrescrita(tr) {
 
   openInput.disabled = Boolean(closed);
   closeInput.disabled = Boolean(closed);
+  tr.style.boxShadow = closed ? "inset 0 0 0 2px rgba(34, 197, 94, 0.5)" : "";
 }
 
 function aplicarConfiguracaoNoFormulario(configuracao) {

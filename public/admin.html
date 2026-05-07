@@ -17,6 +17,38 @@
         font-size: 19px !important;
       }
 
+      .checkbox-destaque {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1.35rem;
+        height: 1.35rem;
+        border: 2px solid #eeeeee;
+        background-color: #111111;
+        box-shadow: 0 0 0 2px #343434;
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease,
+          background-color 0.12s ease;
+      }
+
+      .checkbox-destaque:hover {
+        transform: scale(1.08);
+      }
+
+      .checkbox-destaque:focus-visible {
+        outline: 2px solid #22c55e;
+        outline-offset: 2px;
+      }
+
+      .checkbox-destaque:checked {
+        border-color: #22c55e;
+        background-color: #22c55e;
+        box-shadow: 0 0 0 2px #22c55e, 0 0 0 5px rgba(34, 197, 94, 0.25);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23111111' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' d='M3 8.5 6.3 12 13 4.5'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 0.95rem;
+      }
+
       input[type="search"]::-webkit-search-cancel-button {
         -webkit-appearance: none;
         appearance: none;
