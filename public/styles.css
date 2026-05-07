@@ -43,13 +43,6 @@
   background-color: #d1d5db;
 }
 
-.botao-primario:focus-visible,
-.botao-secundario:focus-visible,
-.botao-remover-administracao:focus-visible {
-  outline: 2px solid #6b7280;
-  outline-offset: 2px;
-}
-
 .principal-inicial {
   min-height: 100vh;
   display: flex;
@@ -206,14 +199,6 @@
   padding: 16px 96px 16px 40px;
   font-size: 14px;
   box-sizing: border-box;
-}
-
-.entrada-busca:focus-visible,
-.entrada-administracao:focus-visible,
-.entrada-hora-administracao:focus-visible,
-.entrada-data-administracao:focus-visible {
-  outline: 2px solid #6b7280;
-  outline-offset: 1px;
 }
 
 .entrada-busca::-webkit-search-cancel-button {
@@ -473,11 +458,6 @@
 
 .caixa-selecao-administracao:hover {
   transform: scale(1.08);
-}
-
-.caixa-selecao-administracao:focus-visible {
-  outline: 2px solid #22c55e;
-  outline-offset: 2px;
 }
 
 .caixa-selecao-administracao:checked {
