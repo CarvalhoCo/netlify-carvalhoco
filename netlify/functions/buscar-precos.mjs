@@ -1,13 +1,19 @@
 const TAMANHO_MINIMO_BUSCA = 2;
 const TAMANHO_MAXIMO_BUSCA = 60;
 const LIMITE_RESULTADOS_BACKEND = 50;
+const CABECALHOS_CACHE_BUSCA = {
+  "Cache-Control": "public, max-age=30, stale-while-revalidate=90",
+  "CDN-Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+  "Netlify-CDN-Cache-Control": "public, max-age=60, stale-while-revalidate=300"
+};
 
-function responderJson(statusCode, payload) {
+function responderJson(statusCode, payload, headersExtras = {}) {
   return new Response(JSON.stringify(payload), {
     status: statusCode,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store",
+      ...headersExtras
     }
   });
 }
@@ -123,9 +129,13 @@ export default async (request) => {
 
     const items = lista.map(normalizarItemProduto).filter(Boolean);
 
-    return responderJson(200, {
-      items
-    });
+    return responderJson(
+      200,
+      {
+        items
+      },
+      CABECALHOS_CACHE_BUSCA
+    );
   } catch (erro) {
     const ehTimeout = erro?.name === "AbortError";
 

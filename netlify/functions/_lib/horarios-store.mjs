@@ -2,7 +2,9 @@ import { getStore } from "@netlify/blobs";
 
 const STORE_NAME = String(process.env.ADMIN_HORARIOS_STORE_NAME ?? "carvalho-config").trim() || "carvalho-config";
 const STORE_KEY = String(process.env.ADMIN_HORARIOS_STORE_KEY ?? "horarios").trim() || "horarios";
+const TTL_CACHE_MEMORIA_MS = 30_000;
 let cacheMemoria = null;
+let cacheMemoriaAtualizadaEm = 0;
 
 export const DIA_LABELS = {
   0: "domingo",
@@ -179,6 +181,11 @@ export function normalizarConfiguracao(entrada) {
 }
 
 export async function lerConfiguracaoHorarios() {
+  const agora = Date.now();
+  if (cacheMemoria && agora - cacheMemoriaAtualizadaEm < TTL_CACHE_MEMORIA_MS) {
+    return normalizarConfiguracao(cacheMemoria);
+  }
+
   try {
     const store = getStore(STORE_NAME);
     const salvo = await store.get(STORE_KEY, { type: "json" });
@@ -191,10 +198,12 @@ export async function lerConfiguracaoHorarios() {
       };
       await store.setJSON(STORE_KEY, inicial);
       cacheMemoria = inicial;
+      cacheMemoriaAtualizadaEm = Date.now();
       return padrao;
     }
 
     cacheMemoria = salvo;
+    cacheMemoriaAtualizadaEm = Date.now();
     return normalizarConfiguracao(salvo);
   } catch {
     if (!cacheMemoria) {
@@ -203,6 +212,8 @@ export async function lerConfiguracaoHorarios() {
         updatedAt: null
       };
     }
+
+    cacheMemoriaAtualizadaEm = Date.now();
 
     return normalizarConfiguracao(cacheMemoria);
   }
@@ -223,5 +234,6 @@ export async function salvarConfiguracaoHorarios(configuracao) {
   }
 
   cacheMemoria = atualizado;
+  cacheMemoriaAtualizadaEm = Date.now();
   return atualizado;
 }

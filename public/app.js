@@ -8,6 +8,9 @@ const contadorDetalheTitulo = document.querySelector("#contador-detalhe-titulo")
 const contadorDetalheValor = document.querySelector("#contador-detalhe-valor");
 const horaBrasilia = document.querySelector("#hora-brasilia");
 const marcaInicial = document.querySelector(".marca-inicial");
+const painelFuncionamentoAtivo = Boolean(
+  contadorStatus && contadorDetalheTitulo && contadorDetalheValor
+);
 
 const formatadorMoeda = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -28,6 +31,7 @@ const ROTACAO_TEXTO_MARCA = ["Carvalho&Co.", "Adega & Tabacaria"];
 const INTERVALO_ROTACAO_MARCA_MS = 10000;
 const INTERVALO_QUADRO_SCRAMBLE_MARCA_MS = 34;
 const PASSO_SCRAMBLE_MARCA = 1.15;
+const ATRASO_CARREGAR_HORARIOS_MS = 400;
 
 const HORARIOS_SEMANA_PADRAO = {
   0: { day: "domingo", closed: false, open: "11:00", close: "17:00" },
@@ -176,6 +180,10 @@ function salvarConfigHorariosLocalCache(config) {
 }
 
 async function carregarConfiguracaoHorarios() {
+  if (!painelFuncionamentoAtivo) {
+    return;
+  }
+
   const cacheLocal = lerConfigHorariosLocalCache();
   if (cacheLocal) {
     aplicarConfiguracaoHorarios(cacheLocal);
@@ -183,8 +191,7 @@ async function carregarConfiguracaoHorarios() {
 
   try {
     const resposta = await fetch("/api/horarios", {
-      method: "GET",
-      cache: "no-store"
+      method: "GET"
     });
 
     if (!resposta.ok) {
@@ -632,13 +639,32 @@ formBusca?.addEventListener("submit", (evento) => {
   });
 });
 
-renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
-carregarConfiguracaoHorarios().finally(() => {
+if (listaResultados && inputBusca) {
+  renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
+}
+
+if (horaBrasilia) {
+  atualizarHoraBrasilia();
+}
+
+if (painelFuncionamentoAtivo) {
+  // Mostra o estado imediatamente com base no padrao/local, sem esperar rede.
   atualizarPainelFuncionamento();
-});
-atualizarHoraBrasilia();
+
+  // Adia a requisicao da API para tirar esse fetch do caminho critico de render.
+  setTimeout(() => {
+    carregarConfiguracaoHorarios().finally(() => {
+      atualizarPainelFuncionamento();
+    });
+  }, ATRASO_CARREGAR_HORARIOS_MS);
+}
+
 iniciarAnimacaoMarcaAgressiva();
 setInterval(() => {
-  atualizarPainelFuncionamento();
-  atualizarHoraBrasilia();
+  if (painelFuncionamentoAtivo) {
+    atualizarPainelFuncionamento();
+  }
+  if (horaBrasilia) {
+    atualizarHoraBrasilia();
+  }
 }, 1000);
