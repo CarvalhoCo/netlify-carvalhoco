@@ -176,7 +176,7 @@ function construirTabelaSemana() {
       <tr>
         <td class="border px-3 py-2 font-semibold" style="border-color: #343434; background-color: #1A1A1A">${label}</td>
         <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-          <input id="semana-${key}-closed" type="checkbox" class="h-4 w-4" />
+          <input id="semana-${key}-closed" type="checkbox" class="h-4 w-4 cursor-pointer" style="accent-color: #22c55e" />
         </td>
         <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
           <input id="semana-${key}-open" type="time" class="w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" />
@@ -216,7 +216,7 @@ function criarLinhaSobrescrita(item = {}) {
       <input type="date" class="campo-data w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" value="${item.date ?? ""}" />
     </td>
     <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-      <input type="checkbox" class="campo-closed h-4 w-4" ${item.closed ? "checked" : ""} />
+      <input type="checkbox" class="campo-closed h-4 w-4 cursor-pointer" style="accent-color: #22c55e" ${item.closed ? "checked" : ""} />
     </td>
     <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
       <input type="time" class="campo-open w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" value="${item.open ?? ""}" />
