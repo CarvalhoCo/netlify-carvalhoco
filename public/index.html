@@ -4,96 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Carvalho&Co.</title>
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.css" rel="stylesheet" />
-    <style>
-      html,
-      body,
-      body * {
-        line-height: 1;
-        border-radius: 0 !important;
-      }
-
-      .text-xl {
-        font-size: 18px !important;
-      }
-
-      input[type="search"]::-webkit-search-cancel-button {
-        -webkit-appearance: none;
-        appearance: none;
-        display: none;
-      }
-    </style>
+    <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body style="background-color: #111111; color: #EEEEEE">
-    <main class="flex min-h-screen items-center justify-center p-4">
-      <section class="w-full max-w-3xl space-y-4">
-        <div
-          class="w-full border p-4"
-          style="border-color: #343434; background-color: #1A1A1A"
-        >
-          <div class="flex items-center justify-between gap-4">
-            <p class="text-xl font-semibold" style="color: #EEEEEE">Carvalho&Co.</p>
-            <p id="hora-brasilia" class="text-xl font-semibold text-right" style="color: #EEEEEE">
-              --:--:--
-            </p>
+  <body class="pagina-inicial">
+    <main class="principal-inicial">
+      <section class="conteudo-inicial">
+        <div class="cartao-inicial">
+          <div class="linha-cabecalho-inicial">
+            <p class="marca-inicial">Carvalho&Co.</p>
+            <p id="hora-brasilia" class="relogio-inicial">--:--:--</p>
           </div>
         </div>
 
-        <div
-          class="w-full border bg-gray-900 p-4 text-center"
-          style="border-color: #343434; background-color: #1A1A1A"
-        >
-          <p id="contador-detalhe-titulo" class="text-xl font-semibold" style="color: #EEEEEE"></p>
-          <p
-            id="contador-detalhe-valor"
-            class="mt-4 text-5xl font-bold tracking-tight"
-            style="color: #EEEEEE"
-          ></p>
-          <p id="contador-status" class="mt-4 text-xl font-semibold" style="color: #EEEEEE"></p>
+        <div class="cartao-inicial cartao-contagem-inicial">
+          <p id="contador-detalhe-titulo" class="titulo-contagem-inicial"></p>
+          <p id="contador-detalhe-valor" class="valor-contagem-inicial"></p>
+          <p id="contador-status" class="status-contagem-inicial"></p>
         </div>
 
-        <div
-          class="w-full border bg-gray-900 p-6"
-          style="border-color: #343434; background-color: #1A1A1A"
-        >
-          <div class="flex flex-col items-center gap-3">
-            <p class="w-full text-center text-xl font-bold" style="color: #EEEEEE">
-              Alguma duvida sobre nossos preços?
-            </p>
-            <a
-              href="./busca.html"
-              class="inline-flex items-center border px-6 py-3 text-base font-semibold transition-colors hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-600"
-              style="background-color: #EEEEEE; border-color: #343434; color: #111111"
-            >
-              Clique aqui
-            </a>
+        <div class="cartao-inicial">
+          <div class="conteudo-acao-inicial">
+            <p class="titulo-acao-inicial">Alguma duvida sobre nossos preços?</p>
+            <a href="./busca.html" class="botao-primario">Clique aqui</a>
           </div>
         </div>
 
-        <div
-          class="w-full border bg-gray-900 p-6"
-          style="border-color: #343434; background-color: #1A1A1A"
-        >
-          <div class="flex flex-col items-center gap-3">
-            <p class="w-full text-center text-xl font-bold" style="color: #EEEEEE">
-              Quer saber como chegar até nós?
-            </p>
+        <div class="cartao-inicial">
+          <div class="conteudo-acao-inicial">
+            <p class="titulo-acao-inicial">Quer saber como chegar até nós?</p>
             <a
               href="https://maps.app.goo.gl/53wnFwKywyg69iVP7"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center border px-6 py-3 text-base font-semibold transition-colors hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-600"
-              style="background-color: #EEEEEE; border-color: #343434; color: #111111"
+              class="botao-primario"
             >
               Abrir no Google Maps
             </a>
           </div>
         </div>
-
       </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

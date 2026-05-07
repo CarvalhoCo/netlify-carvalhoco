@@ -41,7 +41,7 @@ MVP de consulta publica com:
 
 - Em producao (Netlify): os horarios sao salvos no Netlify Blobs.
 - Em desenvolvimento sem function (ex.: Live Server): o painel cai em modo local e salva no `localStorage` do navegador.
-  - Senha local padrao: `1234` (pode ser alterada no `localStorage` pela chave `carvalho_admin_password`).
+  - Senha local padrao: `1234` (pode ser alterada no `localStorage` pela chave `carvalho_senha_administracao`).
 
 ## Teste local (Live Server)
 

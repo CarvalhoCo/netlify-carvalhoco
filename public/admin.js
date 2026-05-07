@@ -1,7 +1,8 @@
 const CHAVE_CONFIG_LOCAL = "carvalho_horarios_config";
-const CHAVE_SENHA_LOCAL = "carvalho_admin_password";
+const CHAVE_SENHA_LOCAL = "carvalho_senha_administracao";
+const CHAVE_SENHA_LOCAL_ANTIGA = "carvalho_admin_password";
 const SENHA_LOCAL_PADRAO = "1234";
-const API_ADMIN = "/api/admin/horarios";
+const URL_API_ADMINISTRACAO = "/api/admin/horarios";
 
 const DIAS_SEMANA = [
   { key: "0", label: "Domingo" },
@@ -14,8 +15,8 @@ const DIAS_SEMANA = [
 ];
 
 const blocoLogin = document.querySelector("#bloco-login");
-const blocoAdmin = document.querySelector("#bloco-admin");
-const senhaInput = document.querySelector("#senha-admin");
+const blocoAdministracao = document.querySelector("#bloco-administracao");
+const senhaInput = document.querySelector("#senha-administracao");
 const statusLogin = document.querySelector("#status-login");
 const statusModo = document.querySelector("#status-modo");
 const statusSalvar = document.querySelector("#status-salvar");
@@ -26,7 +27,7 @@ const btnSair = document.querySelector("#btn-sair");
 const btnSalvar = document.querySelector("#btn-salvar");
 const btnAdicionarData = document.querySelector("#btn-adicionar-data");
 
-let senhaAdminAtual = "";
+let senhaAdministracaoAtual = "";
 let modoAtual = "api";
 
 function criarConfiguracaoPadrao() {
@@ -52,6 +53,12 @@ function obterSenhaLocal() {
   const salva = String(localStorage.getItem(CHAVE_SENHA_LOCAL) ?? "").trim();
   if (salva) {
     return salva;
+  }
+
+  const salvaAntiga = String(localStorage.getItem(CHAVE_SENHA_LOCAL_ANTIGA) ?? "").trim();
+  if (salvaAntiga) {
+    localStorage.setItem(CHAVE_SENHA_LOCAL, salvaAntiga);
+    return salvaAntiga;
   }
 
   localStorage.setItem(CHAVE_SENHA_LOCAL, SENHA_LOCAL_PADRAO);
@@ -174,15 +181,15 @@ function construirTabelaSemana() {
   tabelaSemana.innerHTML = DIAS_SEMANA.map(
     ({ key, label }) => `
       <tr id="linha-semana-${key}">
-        <td class="border px-3 py-2 font-semibold" style="border-color: #343434; background-color: #1A1A1A">${label}</td>
-        <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-          <input id="semana-${key}-closed" type="checkbox" class="checkbox-destaque" />
+        <td class="celula-tabela-administracao celula-tabela-administracao--rotulo">${label}</td>
+        <td class="celula-tabela-administracao">
+          <input id="semana-${key}-closed" type="checkbox" class="caixa-selecao-administracao" />
         </td>
-        <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-          <input id="semana-${key}-open" type="time" class="w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" />
+        <td class="celula-tabela-administracao">
+          <input id="semana-${key}-open" type="time" class="entrada-hora-administracao" />
         </td>
-        <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-          <input id="semana-${key}-close" type="time" class="w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" />
+        <td class="celula-tabela-administracao">
+          <input id="semana-${key}-close" type="time" class="entrada-hora-administracao" />
         </td>
       </tr>
     `
@@ -210,32 +217,32 @@ function atualizarEstadoLinhaSemana(key) {
   closeInput.disabled = Boolean(closed);
 
   if (linha) {
-    linha.style.boxShadow = closed ? "inset 0 0 0 2px rgba(34, 197, 94, 0.5)" : "";
+    linha.classList.toggle("linha-administracao--fechada", Boolean(closed));
   }
 }
 
 function criarLinhaSobrescrita(item = {}) {
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-      <input type="date" class="campo-data w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" value="${item.date ?? ""}" />
+    <td class="celula-tabela-administracao">
+      <input type="date" class="campo-data entrada-data-administracao" value="${item.date ?? ""}" />
     </td>
-    <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-      <input type="checkbox" class="campo-closed checkbox-destaque" ${item.closed ? "checked" : ""} />
+    <td class="celula-tabela-administracao">
+      <input type="checkbox" class="campo-closed caixa-selecao-administracao" ${item.closed ? "checked" : ""} />
     </td>
-    <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-      <input type="time" class="campo-open w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" value="${item.open ?? ""}" />
+    <td class="celula-tabela-administracao">
+      <input type="time" class="campo-open entrada-hora-administracao" value="${item.open ?? ""}" />
     </td>
-    <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-      <input type="time" class="campo-close w-full border p-2 text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #111111" value="${item.close ?? ""}" />
+    <td class="celula-tabela-administracao">
+      <input type="time" class="campo-close entrada-hora-administracao" value="${item.close ?? ""}" />
     </td>
-    <td class="border px-3 py-2" style="border-color: #343434; background-color: #1A1A1A">
-      <button type="button" class="btn-remover inline-flex items-center justify-center border px-3 py-2 text-sm font-semibold" style="background-color: #EEEEEE; border-color: #343434; color: #111111">Remover</button>
+    <td class="celula-tabela-administracao">
+      <button type="button" class="botao-remover-linha botao-remover-administracao">Remover</button>
     </td>
   `;
 
   const closedInput = tr.querySelector(".campo-closed");
-  const removerBtn = tr.querySelector(".btn-remover");
+  const removerBtn = tr.querySelector(".botao-remover-linha");
 
   closedInput?.addEventListener("change", () => {
     atualizarEstadoLinhaSobrescrita(tr);
@@ -260,7 +267,7 @@ function atualizarEstadoLinhaSobrescrita(tr) {
 
   openInput.disabled = Boolean(closed);
   closeInput.disabled = Boolean(closed);
-  tr.style.boxShadow = closed ? "inset 0 0 0 2px rgba(34, 197, 94, 0.5)" : "";
+  tr.classList.toggle("linha-administracao--fechada", Boolean(closed));
 }
 
 function aplicarConfiguracaoNoFormulario(configuracao) {
@@ -372,7 +379,7 @@ function coletarConfiguracaoFormulario() {
 }
 
 async function autenticarModoApi(senha) {
-  const resposta = await fetch(API_ADMIN, {
+  const resposta = await fetch(URL_API_ADMINISTRACAO, {
     method: "GET",
     headers: {
       "x-admin-password": senha
@@ -382,7 +389,7 @@ async function autenticarModoApi(senha) {
 
   if (!resposta.ok) {
     const erro = await resposta.json().catch(() => ({}));
-    throw new Error(erro.mensagem || "Nao foi possivel autenticar no admin.");
+    throw new Error(erro.mensagem || "Nao foi possivel autenticar na administracao.");
   }
 
   const dados = await resposta.json();
@@ -402,8 +409,8 @@ function autenticarModoLocal(senha) {
 }
 
 function entrarNoPainel(configuracao, modo) {
-  blocoLogin.classList.add("hidden");
-  blocoAdmin.classList.remove("hidden");
+  blocoLogin.classList.add("oculto");
+  blocoAdministracao.classList.remove("oculto");
   modoAtual = modo;
 
   statusModo.textContent =
@@ -416,10 +423,10 @@ function entrarNoPainel(configuracao, modo) {
 }
 
 function sairDoPainel() {
-  senhaAdminAtual = "";
+  senhaAdministracaoAtual = "";
   modoAtual = "api";
-  blocoAdmin.classList.add("hidden");
-  blocoLogin.classList.remove("hidden");
+  blocoAdministracao.classList.add("oculto");
+  blocoLogin.classList.remove("oculto");
   statusLogin.textContent = "";
   statusSalvar.textContent = "";
   senhaInput.value = "";
@@ -432,11 +439,11 @@ async function salvarConfiguracao() {
     const config = coletarConfiguracaoFormulario();
 
     if (modoAtual === "api") {
-      const resposta = await fetch(API_ADMIN, {
+      const resposta = await fetch(URL_API_ADMINISTRACAO, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-password": senhaAdminAtual
+          "x-admin-password": senhaAdministracaoAtual
         },
         body: JSON.stringify(config)
       });
@@ -474,13 +481,13 @@ async function iniciarLogin() {
 
   try {
     const config = await autenticarModoApi(senha);
-    senhaAdminAtual = senha;
+    senhaAdministracaoAtual = senha;
     statusLogin.textContent = "";
     entrarNoPainel(config, "api");
   } catch (erroApi) {
     try {
       const configLocal = autenticarModoLocal(senha);
-      senhaAdminAtual = senha;
+      senhaAdministracaoAtual = senha;
       statusLogin.textContent = "";
       entrarNoPainel(configLocal, "local");
     } catch (erroLocal) {

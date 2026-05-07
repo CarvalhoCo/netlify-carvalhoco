@@ -367,7 +367,7 @@ function abrirDropdown() {
     return;
   }
 
-  listaResultados.classList.remove("hidden");
+  listaResultados.classList.remove("oculto");
   inputBusca.setAttribute("aria-expanded", "true");
 }
 
@@ -385,7 +385,7 @@ function renderizarMensagemDropdown(texto) {
     return;
   }
 
-  listaResultados.innerHTML = `<li class="px-4 py-2.5 text-sm" style="color: #EEEEEE">${texto}</li>`;
+  listaResultados.innerHTML = `<li class="mensagem-resultados-busca">${texto}</li>`;
   abrirDropdown();
 }
 
@@ -437,12 +437,12 @@ function renderizarResultados(lista) {
     .map((produto, index) => {
       const nome = String(produto.nome ?? "Produto sem nome");
       const preco = formatarPreco(produto.precoVenda);
-      const classeBorda = index === resultados.length - 1 ? "" : " border-b";
+      const classeBorda = index === resultados.length - 1 ? "" : " linha-resultado-busca--divisor";
       return `
         <li>
-          <div class="flex w-full items-start justify-between gap-4 px-4 py-2.5 text-left text-sm${classeBorda}" style="color: #EEEEEE; border-color: #343434; background-color: #1A1A1A">
-            <span class="whitespace-normal break-words" style="color: #EEEEEE; line-height: 1">${nome}</span>
-            <span class="shrink-0 self-center font-medium" style="color: #EEEEEE">${preco}</span>
+          <div class="linha-resultado-busca${classeBorda}">
+            <span class="nome-resultado-busca">${nome}</span>
+            <span class="preco-resultado-busca">${preco}</span>
           </div>
         </li>
       `;
