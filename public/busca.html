@@ -22,6 +22,18 @@
         appearance: none;
         display: none;
       }
+
+      #lista-resultados {
+        max-height: min(24rem, calc(100dvh - 2rem));
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      @supports not (height: 100dvh) {
+        #lista-resultados {
+          max-height: min(24rem, calc(100vh - 2rem));
+        }
+      }
     </style>
   </head>
   <body style="background-color: #111111; color: #EEEEEE">
@@ -84,7 +96,7 @@
 
           <ul
             id="lista-resultados"
-            class="absolute left-0 right-0 top-[calc(100%-1px)] z-20 hidden max-h-96 overflow-y-auto border border-t-0 bg-gray-800"
+            class="absolute left-0 right-0 top-[calc(100%-1px)] z-20 hidden overflow-y-auto border border-t-0 bg-gray-800"
             style="border-color: #343434; background-color: #1A1A1A"
             role="listbox"
           ></ul>

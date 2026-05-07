@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 
 const TAMANHO_MINIMO_BUSCA = 2;
 const TAMANHO_MAXIMO_BUSCA = 60;
+const LIMITE_RESULTADOS_BACKEND = 50;
 const URL_ARQUIVO_PRODUTOS_TESTE = new URL("./produtos-teste.json", import.meta.url);
 
 let cacheProdutosTeste = null;
@@ -130,6 +131,7 @@ export default async (request) => {
 
   const urlBackend = new URL(configuracao.caminhoBusca, configuracao.baseUrl);
   urlBackend.searchParams.set("termo", validacao.termo);
+  urlBackend.searchParams.set("limite", String(LIMITE_RESULTADOS_BACKEND));
 
   const headers = {
     Accept: "application/json"

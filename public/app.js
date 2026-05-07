@@ -21,6 +21,8 @@ const formatadorHoraBrasilia = new Intl.DateTimeFormat("pt-BR", {
 });
 
 const TAMANHO_MINIMO_BUSCA = 2;
+const ALTURA_MAXIMA_DROPDOWN = 384;
+const MARGEM_INFERIOR_DROPDOWN = 12;
 const URL_PRODUTOS_TESTE_LOCAL = "./produtos-teste.json";
 const HOSTS_DESENVOLVIMENTO = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 const CHAVE_CONFIG_HORARIOS_LOCAL = "carvalho_horarios_config";
@@ -364,12 +366,34 @@ function normalizarTexto(texto) {
   return String(texto ?? "").trim();
 }
 
+function obterAlturaViewportAtual() {
+  if (window.visualViewport?.height) {
+    return window.visualViewport.height;
+  }
+
+  return window.innerHeight || document.documentElement.clientHeight || 0;
+}
+
+function ajustarAlturaDropdown() {
+  if (!listaResultados || listaResultados.classList.contains("hidden")) {
+    return;
+  }
+
+  const alturaViewport = obterAlturaViewportAtual();
+  const limitesLista = listaResultados.getBoundingClientRect();
+  const espacoDisponivel = Math.floor(alturaViewport - limitesLista.top - MARGEM_INFERIOR_DROPDOWN);
+  const alturaCalculada = Math.max(0, Math.min(ALTURA_MAXIMA_DROPDOWN, espacoDisponivel));
+
+  listaResultados.style.maxHeight = `${alturaCalculada}px`;
+}
+
 function abrirDropdown() {
   if (!listaResultados || !inputBusca) {
     return;
   }
 
   listaResultados.classList.remove("hidden");
+  ajustarAlturaDropdown();
   inputBusca.setAttribute("aria-expanded", "true");
 }
 
@@ -549,6 +573,10 @@ formBusca?.addEventListener("submit", (evento) => {
     botaoBusca?.blur();
   });
 });
+
+window.addEventListener("resize", ajustarAlturaDropdown);
+window.addEventListener("orientationchange", ajustarAlturaDropdown);
+window.visualViewport?.addEventListener("resize", ajustarAlturaDropdown);
 
 renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
 carregarConfiguracaoHorarios().finally(() => {
