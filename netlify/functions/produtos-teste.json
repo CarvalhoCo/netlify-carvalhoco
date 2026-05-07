@@ -1,0 +1,14 @@
+[
+  {
+    "nome": "Produto de teste - Heineken 600ml",
+    "precoVenda": 14.9
+  },
+  {
+    "nome": "Produto de teste - Coca-Cola Lata 350ml",
+    "precoVenda": 6.5
+  },
+  {
+    "nome": "Produto de teste - Agua sem gas 500ml",
+    "precoVenda": 3.0
+  }
+]

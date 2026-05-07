@@ -3,8 +3,19 @@
 
 [functions]
   directory = "netlify/functions"
+  included_files = ["netlify/functions/produtos-teste.json"]
 
 [[redirects]]
   from = "/api/precos"
   to = "/.netlify/functions/buscar-precos"
+  status = 200
+
+[[redirects]]
+  from = "/api/horarios"
+  to = "/.netlify/functions/horarios-publicos"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/horarios"
+  to = "/.netlify/functions/horarios-admin"
   status = 200

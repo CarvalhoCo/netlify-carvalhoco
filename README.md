@@ -9,16 +9,44 @@ MVP de consulta publica com:
 ## Estrutura
 
 - `public/index.html`: pagina principal
+- `public/busca.html`: pagina dedicada para busca de produtos
+- `public/admin.html`: painel admin de horarios (acesso via URL)
+- `public/admin.js`: logica do painel admin
 - `public/app.js`: logica da busca/dropdown
+- `package.json`: dependencias das functions (inclui `@netlify/blobs`)
 - `netlify/functions/buscar-precos.mjs`: funcao servidor
+- `netlify/functions/horarios-publicos.mjs`: API publica de horarios
+- `netlify/functions/horarios-admin.mjs`: API admin de horarios (protegida por senha)
+- `netlify/functions/_lib/horarios-store.mjs`: persistencia/normalizacao dos horarios
 - `netlify.toml`: publicacao e rota da funcao
 
 ## Fluxo
 
-1. Usuario digita no campo de busca
-2. Front chama `GET /api/precos?termo=...`
-3. Redirect do Netlify envia para `/.netlify/functions/buscar-precos`
-4. Function chama seu backend e devolve apenas `nome` e `precoVenda`
+1. Usuario acessa a home e clica no botao da ferramenta de busca
+2. Usuario digita no campo de busca em `busca.html`
+3. Front chama `GET /api/precos?termo=...`
+4. Redirect do Netlify envia para `/.netlify/functions/buscar-precos`
+5. Function chama seu backend e devolve apenas `nome` e `precoVenda`
+
+## Painel admin de horarios
+
+- URL: `/admin.html`
+- Protecao: senha via `ADMIN_PANEL_PASSWORD` (Netlify Functions)
+- Permite:
+  - editar horarios semanais (abertura/fechamento por dia)
+  - criar sobrescritas por data
+  - fechar loja em data especifica
+
+### Persistencia dos horarios
+
+- Em producao (Netlify): os horarios sao salvos no Netlify Blobs.
+- Em desenvolvimento sem function (ex.: Live Server): o painel cai em modo local e salva no `localStorage` do navegador.
+  - Senha local padrao: `1234` (pode ser alterada no `localStorage` pela chave `carvalho_admin_password`).
+
+## Teste local (Live Server)
+
+- No Live Server, a rota `/api/precos` nao existe.
+- Nessa situacao, o frontend usa automaticamente `public/produtos-teste.json` como fallback para a busca.
 
 ## Variaveis de ambiente (Netlify)
 
@@ -31,6 +59,11 @@ Defina no painel do Netlify (escopo `Functions`):
 - `BACKEND_AUTH_HEADER`: nome do header de autenticacao da function para backend
   - Padrao: `x-public-api-token`
 - `BACKEND_PUBLIC_TOKEN`: token secreto da function para backend
+- `ADMIN_PANEL_PASSWORD`: senha do painel admin de horarios
+- `ADMIN_HORARIOS_STORE_NAME`: nome do store no Netlify Blobs
+  - Padrao: `carvalho-config`
+- `ADMIN_HORARIOS_STORE_KEY`: chave da configuracao de horarios
+  - Padrao: `horarios`
 
 ## Variaveis no backend (PDV)
 
@@ -88,13 +121,16 @@ BACKEND_BASE_URL=https://adegacarvalho.com.br
 BACKEND_SEARCH_PATH=/api/publico/produtos/buscar
 BACKEND_AUTH_HEADER=x-public-api-token
 BACKEND_PUBLIC_TOKEN=mesmo-valor-do-PUBLICO_PRODUTOS_TOKEN
+ADMIN_PANEL_PASSWORD=troque-por-uma-senha-forte
+ADMIN_HORARIOS_STORE_NAME=carvalho-config
+ADMIN_HORARIOS_STORE_KEY=horarios
 ```
 
 ## Checklist de go-live
 
 1. Backend `pdv` atualizado com a rota `/api/publico/produtos/buscar`.
 2. `.env` do backend com `PUBLICO_PRODUTOS_TOKEN` e `PUBLICO_PRODUTOS_HEADER`.
-3. Site no Netlify com as 4 variaveis (`BACKEND_*`) configuradas.
+3. Site no Netlify com as variaveis (`BACKEND_*` e `ADMIN_*`) configuradas.
 4. Deploy do backend e deploy do Netlify finalizados.
 5. Teste manual:
    - Digitar parte do nome do produto na barra de busca.

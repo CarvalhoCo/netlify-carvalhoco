@@ -1,6 +1,10 @@
+import { readFile } from "node:fs/promises";
+
 const TAMANHO_MINIMO_BUSCA = 2;
 const TAMANHO_MAXIMO_BUSCA = 60;
-const LIMITE_RESULTADOS = 20;
+const URL_ARQUIVO_PRODUTOS_TESTE = new URL("./produtos-teste.json", import.meta.url);
+
+let cacheProdutosTeste = null;
 
 function responderJson(statusCode, payload) {
   return new Response(JSON.stringify(payload), {
@@ -67,23 +71,39 @@ function normalizarItemProduto(item) {
   };
 }
 
+async function carregarProdutosTeste() {
+  if (cacheProdutosTeste) {
+    return cacheProdutosTeste;
+  }
+
+  try {
+    const conteudo = await readFile(URL_ARQUIVO_PRODUTOS_TESTE, "utf-8");
+    const dados = JSON.parse(conteudo);
+    cacheProdutosTeste = Array.isArray(dados) ? dados : [];
+    return cacheProdutosTeste;
+  } catch {
+    cacheProdutosTeste = [];
+    return cacheProdutosTeste;
+  }
+}
+
+async function obterProdutosTeste(termoEntrada) {
+  const termo = String(termoEntrada ?? "").trim().toLowerCase();
+
+  if (!termo) {
+    return [];
+  }
+
+  const produtos = await carregarProdutosTeste();
+  return produtos
+    .map(normalizarItemProduto)
+    .filter(Boolean)
+    .filter((item) => item.nome.toLowerCase().includes(termo));
+}
+
 export default async (request) => {
   if (request.method !== "GET") {
     return responderJson(405, { mensagem: "Metodo nao permitido." });
-  }
-
-  const configuracao = obterConfiguracao();
-
-  if (!configuracao.baseUrl) {
-    return responderJson(500, {
-      mensagem: "Configuracao ausente. Defina BACKEND_BASE_URL no Netlify."
-    });
-  }
-
-  if (!configuracao.tokenAcesso) {
-    return responderJson(500, {
-      mensagem: "Configuracao ausente. Defina BACKEND_PUBLIC_TOKEN no Netlify."
-    });
   }
 
   const urlRequisicao = new URL(request.url);
@@ -91,6 +111,21 @@ export default async (request) => {
 
   if (!validacao.valido) {
     return responderJson(400, { mensagem: validacao.mensagem });
+  }
+
+  const produtosTeste = await obterProdutosTeste(validacao.termo);
+  if (produtosTeste.length > 0) {
+    return responderJson(200, {
+      items: produtosTeste
+    });
+  }
+
+  const configuracao = obterConfiguracao();
+
+  if (!configuracao.baseUrl || !configuracao.tokenAcesso) {
+    return responderJson(200, {
+      items: []
+    });
   }
 
   const urlBackend = new URL(configuracao.caminhoBusca, configuracao.baseUrl);
@@ -126,10 +161,7 @@ export default async (request) => {
         ? dados.items
         : [];
 
-    const items = lista
-      .map(normalizarItemProduto)
-      .filter(Boolean)
-      .slice(0, LIMITE_RESULTADOS);
+    const items = lista.map(normalizarItemProduto).filter(Boolean);
 
     return responderJson(200, {
       items

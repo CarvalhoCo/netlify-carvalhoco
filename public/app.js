@@ -1,6 +1,5 @@
 const inputBusca = document.querySelector("#busca");
 const listaResultados = document.querySelector("#lista-resultados");
-const mensagemStatus = document.querySelector("#mensagem-status");
 const campoBusca = document.querySelector("#campo-busca");
 const formBusca = campoBusca?.querySelector("form");
 const botaoBusca = document.querySelector("#botao-busca");
@@ -22,19 +21,221 @@ const formatadorHoraBrasilia = new Intl.DateTimeFormat("pt-BR", {
 });
 
 const TAMANHO_MINIMO_BUSCA = 2;
+const URL_PRODUTOS_TESTE_LOCAL = "./produtos-teste.json";
+const HOSTS_DESENVOLVIMENTO = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
+const CHAVE_CONFIG_HORARIOS_LOCAL = "carvalho_horarios_config";
 
-const HORARIOS_FUNCIONAMENTO = {
-  0: { dia: "domingo", abre: "11:00", fecha: "17:00" },
-  1: { dia: "segunda-feira", abre: null, fecha: null },
-  2: { dia: "terca-feira", abre: "14:00", fecha: "23:00" },
-  3: { dia: "quarta-feira", abre: "14:00", fecha: "23:00" },
-  4: { dia: "quinta-feira", abre: "14:00", fecha: "23:00" },
-  5: { dia: "sexta-feira", abre: "14:00", fecha: "23:00" },
-  6: { dia: "sabado", abre: "11:00", fecha: "23:00" }
+const HORARIOS_SEMANA_PADRAO = {
+  0: { day: "domingo", closed: false, open: "11:00", close: "17:00" },
+  1: { day: "segunda", closed: true, open: null, close: null },
+  2: { day: "terça", closed: false, open: "14:00", close: "23:00" },
+  3: { day: "quarta", closed: false, open: "14:00", close: "23:00" },
+  4: { day: "quinta", closed: false, open: "14:00", close: "23:00" },
+  5: { day: "sexta", closed: false, open: "14:00", close: "23:00" },
+  6: { day: "sábado", closed: false, open: "11:00", close: "23:00" }
 };
 
 let controladorRequisicao = null;
 let ultimaBusca = "";
+let configuracaoHorarios = criarConfiguracaoPadraoHorarios();
+
+function criarConfiguracaoPadraoHorarios() {
+  return {
+    weekly: JSON.parse(JSON.stringify(HORARIOS_SEMANA_PADRAO)),
+    dateOverrides: []
+  };
+}
+
+function obterChaveDataLocal(data) {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const dia = String(data.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+}
+
+function horarioValido(horario) {
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(horario ?? ""));
+}
+
+function dataValida(dataTexto) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dataTexto ?? ""))) {
+    return false;
+  }
+
+  const [ano, mes, dia] = dataTexto.split("-").map(Number);
+  const data = new Date(ano, mes - 1, dia);
+  return data.getFullYear() === ano && data.getMonth() === mes - 1 && data.getDate() === dia;
+}
+
+function normalizarConfiguracaoHorarios(entrada) {
+  const base = criarConfiguracaoPadraoHorarios();
+  const dados = entrada && typeof entrada === "object" ? entrada : {};
+  const weeklyEntrada = dados.weekly && typeof dados.weekly === "object" ? dados.weekly : {};
+
+  const weekly = {};
+  Object.keys(base.weekly).forEach((chaveDia) => {
+    const padraoDia = base.weekly[chaveDia];
+    const item = weeklyEntrada[chaveDia] && typeof weeklyEntrada[chaveDia] === "object"
+      ? weeklyEntrada[chaveDia]
+      : {};
+
+    const fechado = Boolean(item.closed);
+    if (fechado) {
+      weekly[chaveDia] = {
+        day: padraoDia.day,
+        closed: true,
+        open: null,
+        close: null
+      };
+      return;
+    }
+
+    const open = horarioValido(item.open) ? item.open : padraoDia.open;
+    const close = horarioValido(item.close) ? item.close : padraoDia.close;
+
+    if (!horarioValido(open) || !horarioValido(close)) {
+      weekly[chaveDia] = JSON.parse(JSON.stringify(padraoDia));
+      return;
+    }
+
+    if (converterHorarioParaSegundos(open) >= converterHorarioParaSegundos(close)) {
+      weekly[chaveDia] = JSON.parse(JSON.stringify(padraoDia));
+      return;
+    }
+
+    weekly[chaveDia] = {
+      day: padraoDia.day,
+      closed: false,
+      open,
+      close
+    };
+  });
+
+  const overridesEntrada = Array.isArray(dados.dateOverrides) ? dados.dateOverrides : [];
+  const mapa = new Map();
+
+  overridesEntrada.forEach((item) => {
+    const date = String(item?.date ?? "").trim();
+    if (!dataValida(date)) {
+      return;
+    }
+
+    const closed = Boolean(item?.closed);
+    if (closed) {
+      mapa.set(date, { date, closed: true, open: null, close: null });
+      return;
+    }
+
+    const open = String(item?.open ?? "").trim();
+    const close = String(item?.close ?? "").trim();
+    if (!horarioValido(open) || !horarioValido(close)) {
+      return;
+    }
+
+    if (converterHorarioParaSegundos(open) >= converterHorarioParaSegundos(close)) {
+      return;
+    }
+
+    mapa.set(date, { date, closed: false, open, close });
+  });
+
+  return {
+    weekly,
+    dateOverrides: Array.from(mapa.values()).sort((a, b) => a.date.localeCompare(b.date))
+  };
+}
+
+function aplicarConfiguracaoHorarios(entrada) {
+  configuracaoHorarios = normalizarConfiguracaoHorarios(entrada);
+}
+
+function lerConfigHorariosLocalCache() {
+  try {
+    const texto = localStorage.getItem(CHAVE_CONFIG_HORARIOS_LOCAL);
+    if (!texto) {
+      return null;
+    }
+
+    const dados = JSON.parse(texto);
+    return normalizarConfiguracaoHorarios(dados);
+  } catch {
+    return null;
+  }
+}
+
+function salvarConfigHorariosLocalCache(config) {
+  try {
+    localStorage.setItem(CHAVE_CONFIG_HORARIOS_LOCAL, JSON.stringify(config));
+  } catch {
+    // Ignora falhas de storage no navegador.
+  }
+}
+
+async function carregarConfiguracaoHorarios() {
+  const cacheLocal = lerConfigHorariosLocalCache();
+  if (cacheLocal) {
+    aplicarConfiguracaoHorarios(cacheLocal);
+  }
+
+  try {
+    const resposta = await fetch("/api/horarios", {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!resposta.ok) {
+      return;
+    }
+
+    const dados = await resposta.json().catch(() => null);
+    if (!dados || typeof dados !== "object") {
+      return;
+    }
+
+    const normalizada = normalizarConfiguracaoHorarios(dados);
+    aplicarConfiguracaoHorarios(normalizada);
+    salvarConfigHorariosLocalCache(normalizada);
+  } catch {
+    // Em desenvolvimento sem function (ex.: Live Server), mantem config local/padrao.
+  }
+}
+
+function obterHorarioEfetivoData(dataReferencia) {
+  const diaSemana = dataReferencia.getDay();
+  const chaveData = obterChaveDataLocal(dataReferencia);
+  const semanal = configuracaoHorarios.weekly[String(diaSemana)];
+  const sobrescrita = configuracaoHorarios.dateOverrides.find((item) => item.date === chaveData);
+
+  if (sobrescrita) {
+    if (sobrescrita.closed) {
+      return {
+        day: semanal?.day ?? "",
+        open: null,
+        close: null
+      };
+    }
+
+    return {
+      day: semanal?.day ?? "",
+      open: sobrescrita.open,
+      close: sobrescrita.close
+    };
+  }
+
+  if (!semanal || semanal.closed) {
+    return {
+      day: semanal?.day ?? "",
+      open: null,
+      close: null
+    };
+  }
+
+  return {
+    day: semanal.day,
+    open: semanal.open,
+    close: semanal.close
+  };
+}
 
 function converterHorarioParaSegundos(horario) {
   const [hora, minuto] = String(horario ?? "")
@@ -69,27 +270,26 @@ function obterSegundosDiaAtual(agora) {
 }
 
 function obterProximaAbertura(agora) {
-  const diaAtual = agora.getDay();
   const segundosHoje = obterSegundosDiaAtual(agora);
 
   for (let deslocamento = 0; deslocamento <= 7; deslocamento += 1) {
-    const diaBusca = (diaAtual + deslocamento) % 7;
-    const horarioDia = HORARIOS_FUNCIONAMENTO[diaBusca];
+    const dataBusca = new Date(agora);
+    dataBusca.setDate(dataBusca.getDate() + deslocamento);
+    const horarioDia = obterHorarioEfetivoData(dataBusca);
 
-    if (!horarioDia?.abre || !horarioDia?.fecha) {
+    if (!horarioDia?.open || !horarioDia?.close) {
       continue;
     }
 
-    const segundosAbertura = converterHorarioParaSegundos(horarioDia.abre);
-    const segundosFechamento = converterHorarioParaSegundos(horarioDia.fecha);
+    const segundosAbertura = converterHorarioParaSegundos(horarioDia.open);
+    const segundosFechamento = converterHorarioParaSegundos(horarioDia.close);
 
     if (deslocamento === 0) {
       if (segundosHoje < segundosAbertura) {
         return {
           deslocamento,
-          diaBusca,
           horarioDia,
-          alvo: criarDataComHorario(agora, horarioDia.abre)
+          alvo: criarDataComHorario(agora, horarioDia.open)
         };
       }
 
@@ -100,13 +300,10 @@ function obterProximaAbertura(agora) {
       continue;
     }
 
-    const base = new Date(agora);
-    base.setDate(base.getDate() + deslocamento);
     return {
       deslocamento,
-      diaBusca,
       horarioDia,
-      alvo: criarDataComHorario(base, horarioDia.abre)
+      alvo: criarDataComHorario(dataBusca, horarioDia.open)
     };
   }
 
@@ -119,19 +316,18 @@ function atualizarPainelFuncionamento() {
   }
 
   const agora = new Date();
-  const diaAtual = agora.getDay();
-  const horarioDia = HORARIOS_FUNCIONAMENTO[diaAtual];
+  const horarioDia = obterHorarioEfetivoData(agora);
   const segundosHoje = obterSegundosDiaAtual(agora);
 
-  if (horarioDia?.abre && horarioDia?.fecha) {
-    const segundosAbertura = converterHorarioParaSegundos(horarioDia.abre);
-    const segundosFechamento = converterHorarioParaSegundos(horarioDia.fecha);
+  if (horarioDia?.open && horarioDia?.close) {
+    const segundosAbertura = converterHorarioParaSegundos(horarioDia.open);
+    const segundosFechamento = converterHorarioParaSegundos(horarioDia.close);
 
     if (segundosHoje >= segundosAbertura && segundosHoje < segundosFechamento) {
       const faltamSegundos = segundosFechamento - segundosHoje;
       contadorStatus.textContent = `Fecha em: ${formatarDuracao(faltamSegundos)}`;
-      contadorDetalheTitulo.textContent = "Horario de hoje:";
-      contadorDetalheValor.textContent = `${horarioDia.abre}–${horarioDia.fecha}`;
+      contadorDetalheTitulo.textContent = "Horário de hoje:";
+      contadorDetalheValor.textContent = `${horarioDia.open}–${horarioDia.close}`;
       return;
     }
   }
@@ -139,8 +335,8 @@ function atualizarPainelFuncionamento() {
   const proximaAbertura = obterProximaAbertura(agora);
   if (!proximaAbertura) {
     contadorStatus.textContent = "Loja fechada no momento.";
-    contadorDetalheTitulo.textContent = "Proxima abertura:";
-    contadorDetalheValor.textContent = "Indisponivel";
+    contadorDetalheTitulo.textContent = "Próxima abertura:";
+    contadorDetalheValor.textContent = "Indisponível";
     return;
   }
 
@@ -149,11 +345,11 @@ function atualizarPainelFuncionamento() {
     Math.floor((proximaAbertura.alvo.getTime() - agora.getTime()) / 1000)
   );
   const referenciaDia =
-    proximaAbertura.deslocamento === 0 ? "hoje" : proximaAbertura.horarioDia.dia;
+    proximaAbertura.deslocamento === 0 ? "hoje" : proximaAbertura.horarioDia.day;
 
   contadorStatus.textContent = `Abre em: ${formatarDuracao(faltamSegundos)}`;
-  contadorDetalheTitulo.textContent = "Proxima abertura:";
-  contadorDetalheValor.textContent = `${referenciaDia} as ${proximaAbertura.horarioDia.abre}`;
+  contadorDetalheTitulo.textContent = "Próxima abertura:";
+  contadorDetalheValor.textContent = `${referenciaDia} às ${proximaAbertura.horarioDia.open}`;
 }
 
 function atualizarHoraBrasilia() {
@@ -168,31 +364,29 @@ function normalizarTexto(texto) {
   return String(texto ?? "").trim();
 }
 
-function definirMensagem(texto, tipo = "info") {
-  if (!mensagemStatus) {
+function abrirDropdown() {
+  if (!listaResultados || !inputBusca) {
     return;
   }
 
-  mensagemStatus.textContent = texto;
-  mensagemStatus.style.color = "#EEEEEE";
-}
-
-function abrirDropdown() {
   listaResultados.classList.remove("hidden");
   inputBusca.setAttribute("aria-expanded", "true");
 }
 
-function fecharDropdown() {
-  listaResultados.classList.add("hidden");
-  inputBusca.setAttribute("aria-expanded", "false");
-}
-
 function limparResultados() {
+  if (!listaResultados) {
+    return;
+  }
+
   listaResultados.innerHTML = "";
-  fecharDropdown();
+  abrirDropdown();
 }
 
 function renderizarMensagemDropdown(texto) {
+  if (!listaResultados) {
+    return;
+  }
+
   listaResultados.innerHTML = `<li class="px-4 py-2.5 text-sm" style="color: #EEEEEE">${texto}</li>`;
   abrirDropdown();
 }
@@ -206,7 +400,54 @@ function formatarPreco(valor) {
   return formatadorMoeda.format(numero);
 }
 
+function normalizarProduto(item) {
+  const nome = String(item?.nome ?? "").trim();
+  const precoVenda = Number(item?.precoVenda);
+
+  if (!nome || !Number.isFinite(precoVenda)) {
+    return null;
+  }
+
+  return {
+    nome,
+    precoVenda
+  };
+}
+
+function ambienteLocalSemProxyApi() {
+  const host = String(window.location?.hostname ?? "");
+  return HOSTS_DESENVOLVIMENTO.has(host) || host.endsWith(".local");
+}
+
+function filtrarProdutosPorTermo(lista, termo) {
+  const termoNormalizado = String(termo ?? "").trim().toLowerCase();
+
+  return lista
+    .map(normalizarProduto)
+    .filter(Boolean)
+    .filter((item) => item.nome.toLowerCase().includes(termoNormalizado));
+}
+
+async function buscarProdutosLocal(termo) {
+  const resposta = await fetch(URL_PRODUTOS_TESTE_LOCAL, {
+    method: "GET",
+    cache: "no-store"
+  });
+
+  if (!resposta.ok) {
+    return [];
+  }
+
+  const dados = await resposta.json().catch(() => []);
+  const lista = Array.isArray(dados) ? dados : Array.isArray(dados?.items) ? dados.items : [];
+  return filtrarProdutosPorTermo(lista, termo);
+}
+
 function renderizarResultados(lista) {
+  if (!listaResultados) {
+    return;
+  }
+
   const resultados = Array.isArray(lista) ? lista : [];
 
   if (resultados.length === 0) {
@@ -215,13 +456,14 @@ function renderizarResultados(lista) {
   }
 
   const html = resultados
-    .map((produto) => {
+    .map((produto, index) => {
       const nome = String(produto.nome ?? "Produto sem nome");
       const preco = formatarPreco(produto.precoVenda);
+      const classeBorda = index === resultados.length - 1 ? "" : " border-b";
       return `
         <li>
-          <div class="flex w-full items-start justify-between gap-4 border-b px-4 py-2.5 text-left text-sm" style="color: #EEEEEE; border-color: #343434; background-color: #1A1A1A">
-            <span class="whitespace-normal break-words leading-5" style="color: #EEEEEE">${nome}</span>
+          <div class="flex w-full items-start justify-between gap-4 px-4 py-2.5 text-left text-sm${classeBorda}" style="color: #EEEEEE; border-color: #343434; background-color: #1A1A1A">
+            <span class="whitespace-normal break-words" style="color: #EEEEEE; line-height: 1">${nome}</span>
             <span class="shrink-0 self-center font-medium" style="color: #EEEEEE">${preco}</span>
           </div>
         </li>
@@ -240,18 +482,37 @@ async function buscarProdutos(termo) {
 
   controladorRequisicao = new AbortController();
 
-  const resposta = await fetch(`/api/precos?termo=${encodeURIComponent(termo)}`, {
-    method: "GET",
-    signal: controladorRequisicao.signal
-  });
+  let resposta = null;
+
+  try {
+    resposta = await fetch(`/api/precos?termo=${encodeURIComponent(termo)}`, {
+      method: "GET",
+      signal: controladorRequisicao.signal
+    });
+  } catch (erro) {
+    if (erro?.name === "AbortError") {
+      throw erro;
+    }
+
+    if (ambienteLocalSemProxyApi()) {
+      return buscarProdutosLocal(termo);
+    }
+
+    throw erro;
+  }
 
   if (!resposta.ok) {
+    if (ambienteLocalSemProxyApi()) {
+      return buscarProdutosLocal(termo);
+    }
+
     const dadosErro = await resposta.json().catch(() => ({}));
     throw new Error(dadosErro.mensagem || "Falha ao consultar os produtos.");
   }
 
   const dados = await resposta.json();
-  return Array.isArray(dados?.items) ? dados.items : [];
+  const lista = Array.isArray(dados?.items) ? dados.items : [];
+  return filtrarProdutosPorTermo(lista, termo);
 }
 
 async function executarBusca(termoDigitado) {
@@ -259,13 +520,11 @@ async function executarBusca(termoDigitado) {
   ultimaBusca = termo;
 
   if (termo.length < TAMANHO_MINIMO_BUSCA) {
-    limparResultados();
-    definirMensagem(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
+    renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
     return;
   }
 
   renderizarMensagemDropdown("Buscando produtos...");
-  definirMensagem("Consultando preco atualizado...");
 
   try {
     const produtos = await buscarProdutos(termo);
@@ -275,38 +534,26 @@ async function executarBusca(termoDigitado) {
     }
 
     renderizarResultados(produtos);
-    definirMensagem(`${produtos.length} resultado(s) encontrado(s).`);
   } catch (erro) {
     if (erro.name === "AbortError") {
       return;
     }
 
-    limparResultados();
-    definirMensagem(erro.message || "Erro ao consultar produtos.", "erro");
+    renderizarMensagemDropdown(erro.message || "Erro ao consultar produtos.");
   }
 }
 
 formBusca?.addEventListener("submit", (evento) => {
   evento.preventDefault();
-  executarBusca(inputBusca.value).finally(() => {
+  executarBusca(inputBusca?.value || "").finally(() => {
     botaoBusca?.blur();
   });
 });
 
-inputBusca.addEventListener("keydown", (evento) => {
-  if (evento.key === "Escape") {
-    limparResultados();
-  }
+renderizarMensagemDropdown(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
+carregarConfiguracaoHorarios().finally(() => {
+  atualizarPainelFuncionamento();
 });
-
-document.addEventListener("click", (evento) => {
-  if (!campoBusca.contains(evento.target)) {
-    fecharDropdown();
-  }
-});
-
-definirMensagem(`Digite pelo menos ${TAMANHO_MINIMO_BUSCA} caracteres.`);
-atualizarPainelFuncionamento();
 atualizarHoraBrasilia();
 setInterval(() => {
   atualizarPainelFuncionamento();
