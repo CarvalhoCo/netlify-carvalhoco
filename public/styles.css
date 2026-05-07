@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Control Upright";
+  src: url("./fontes/control-upright-regular-tnt.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 .pagina-inicial,
 .pagina-busca,
 .pagina-administracao {
@@ -5,7 +13,8 @@
   background-color: #111111;
   color: #eeeeee;
   line-height: 1;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: "Control Upright", sans-serif;
+  letter-spacing: 0.036em;
 }
 
 a,
@@ -141,7 +150,7 @@ textarea:focus-visible,
   margin: 16px 0 0;
   font-size: clamp(2.2rem, 8vw, 3rem);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.036em;
   color: #eeeeee;
   line-height: 1;
 }
