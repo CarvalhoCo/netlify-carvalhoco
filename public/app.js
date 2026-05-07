@@ -21,8 +21,6 @@ const formatadorHoraBrasilia = new Intl.DateTimeFormat("pt-BR", {
 });
 
 const TAMANHO_MINIMO_BUSCA = 2;
-const URL_PRODUTOS_TESTE_LOCAL = "./produtos-teste.json";
-const HOSTS_DESENVOLVIMENTO = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 const CHAVE_CONFIG_HORARIOS_LOCAL = "carvalho_horarios_config";
 
 const HORARIOS_SEMANA_PADRAO = {
@@ -414,11 +412,6 @@ function normalizarProduto(item) {
   };
 }
 
-function ambienteLocalSemProxyApi() {
-  const host = String(window.location?.hostname ?? "");
-  return HOSTS_DESENVOLVIMENTO.has(host) || host.endsWith(".local");
-}
-
 function filtrarProdutosPorTermo(lista, termo) {
   const termoNormalizado = String(termo ?? "").trim().toLowerCase();
 
@@ -426,21 +419,6 @@ function filtrarProdutosPorTermo(lista, termo) {
     .map(normalizarProduto)
     .filter(Boolean)
     .filter((item) => item.nome.toLowerCase().includes(termoNormalizado));
-}
-
-async function buscarProdutosLocal(termo) {
-  const resposta = await fetch(URL_PRODUTOS_TESTE_LOCAL, {
-    method: "GET",
-    cache: "no-store"
-  });
-
-  if (!resposta.ok) {
-    return [];
-  }
-
-  const dados = await resposta.json().catch(() => []);
-  const lista = Array.isArray(dados) ? dados : Array.isArray(dados?.items) ? dados.items : [];
-  return filtrarProdutosPorTermo(lista, termo);
 }
 
 function renderizarResultados(lista) {
@@ -493,19 +471,10 @@ async function buscarProdutos(termo) {
     if (erro?.name === "AbortError") {
       throw erro;
     }
-
-    if (ambienteLocalSemProxyApi()) {
-      return buscarProdutosLocal(termo);
-    }
-
-    throw erro;
+    throw new Error("Nao foi possivel consultar os produtos agora.");
   }
 
   if (!resposta.ok) {
-    if (ambienteLocalSemProxyApi()) {
-      return buscarProdutosLocal(termo);
-    }
-
     const dadosErro = await resposta.json().catch(() => ({}));
     throw new Error(dadosErro.mensagem || "Falha ao consultar os produtos.");
   }

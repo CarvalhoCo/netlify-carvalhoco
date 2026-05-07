@@ -46,7 +46,7 @@ MVP de consulta publica com:
 ## Teste local (Live Server)
 
 - No Live Server, a rota `/api/precos` nao existe.
-- Nessa situacao, o frontend usa automaticamente `public/produtos-teste.json` como fallback para a busca.
+- Para testar a busca localmente, rode com Netlify Dev (`netlify dev`) ou use um ambiente com as Functions/redirects ativos.
 
 ## Variaveis de ambiente (Netlify)
 
