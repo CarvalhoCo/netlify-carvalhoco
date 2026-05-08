@@ -375,6 +375,16 @@ function normalizarTexto(texto) {
   return String(texto ?? "").trim();
 }
 
+function removerAcentos(texto) {
+  return String(texto ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function normalizarTermoBusca(texto) {
+  return removerAcentos(texto).trim().toLowerCase();
+}
+
 function sortearCaractereRuidoMarca() {
   const indice = Math.floor(Math.random() * CARACTERES_RUIDO_MARCA.length);
   return CARACTERES_RUIDO_MARCA[indice] || "#";
@@ -533,12 +543,12 @@ function normalizarProduto(item) {
 }
 
 function filtrarProdutosPorTermo(lista, termo) {
-  const termoNormalizado = String(termo ?? "").trim().toLowerCase();
+  const termoNormalizado = normalizarTermoBusca(termo);
 
   return lista
     .map(normalizarProduto)
     .filter(Boolean)
-    .filter((item) => item.nome.toLowerCase().includes(termoNormalizado));
+    .filter((item) => normalizarTermoBusca(item.nome).includes(termoNormalizado));
 }
 
 function renderizarResultados(lista) {
@@ -605,7 +615,7 @@ async function buscarProdutos(termo) {
 }
 
 async function executarBusca(termoDigitado) {
-  const termo = normalizarTexto(termoDigitado);
+  const termo = normalizarTermoBusca(termoDigitado);
   ultimaBusca = termo;
 
   if (termo.length < TAMANHO_MINIMO_BUSCA) {
@@ -634,7 +644,13 @@ async function executarBusca(termoDigitado) {
 
 formBusca?.addEventListener("submit", (evento) => {
   evento.preventDefault();
-  executarBusca(inputBusca?.value || "").finally(() => {
+  const valorDigitado = inputBusca?.value || "";
+  const valorSemAcentos = removerAcentos(valorDigitado);
+  if (inputBusca) {
+    inputBusca.value = valorSemAcentos;
+  }
+
+  executarBusca(valorSemAcentos).finally(() => {
     botaoBusca?.blur();
   });
 });
