@@ -3,33 +3,87 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carvalho&Co.</title>
-    <link
-      rel="preload"
-      href="./fontes/control-upright-regular-tnt.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
+    <title>Carvalho&amp;Co. — Adega &amp; Tabacaria</title>
+    <meta
+      name="description"
+      content="Adega Carvalho, também conhecida como Carvalho&amp;Co. em Mauá! Consulte preços de bebidas, confira nosso horário em tempo real e encontre seus produtos favoritos."
     />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://adegacarvalho.com/" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Carvalho&amp;Co." />
+    <meta property="og:title" content="Carvalho&amp;Co. — Adega &amp; Tabacaria" />
+    <meta
+      property="og:description"
+      content="Adega Carvalho, também conhecida como Carvalho&amp;Co. em Mauá! Consulte preços de bebidas, confira nosso horário em tempo real e encontre seus produtos favoritos."
+    />
+    <meta property="og:url" content="https://adegacarvalho.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Carvalho&amp;Co. — Adega &amp; Tabacaria" />
+    <meta
+      name="twitter:description"
+      content="Adega Carvalho, também conhecida como Carvalho&amp;Co. em Mauá! Consulte preços de bebidas, confira nosso horário em tempo real e encontre seus produtos favoritos."
+    />
+    <script id="dados-estruturados-loja" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LiquorStore",
+        "@id": "https://adegacarvalho.com/#loja",
+        "name": "Carvalho&Co.",
+        "alternateName": "Adega Carvalho",
+        "legalName": "Carvalho&Co. LTDA",
+        "taxID": "55.061.604/0001-30",
+        "url": "https://adegacarvalho.com/",
+        "telephone": "+55 11 91010-0155",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rua Ohio, 101",
+          "addressLocality": "Mauá",
+          "addressRegion": "SP",
+          "postalCode": "09351-260",
+          "addressCountry": "BR"
+        },
+        "hasMap": "https://maps.app.goo.gl/53wnFwKywyg69iVP7",
+        "sameAs": [
+          "https://www.instagram.com/adegatabacariacarvalho/"
+        ],
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": "https://schema.org/Sunday",
+            "opens": "11:00",
+            "closes": "17:00"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+              "https://schema.org/Tuesday",
+              "https://schema.org/Wednesday",
+              "https://schema.org/Thursday",
+              "https://schema.org/Friday"
+            ],
+            "opens": "14:00",
+            "closes": "23:00"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": "https://schema.org/Saturday",
+            "opens": "11:00",
+            "closes": "23:00"
+          }
+        ]
+      }
+    </script>
     <link rel="modulepreload" href="./app.js" />
     <style>
-      @font-face {
-        font-family: "Control Upright";
-        src: url("./fontes/control-upright-regular-tnt.woff2") format("woff2");
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-      }
-
       .pagina-inicial {
         margin: 0;
         background-color: #111111;
         color: #eeeeee;
-        line-height: 1;
-        font-family: "Control Upright", sans-serif;
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 500;
         font-feature-settings: "ss04" 1;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
       }
 
       .principal-inicial {
@@ -58,25 +112,6 @@
         padding: 16px;
       }
 
-      .linha-cabecalho-inicial {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-      }
-
-      .marca-inicial,
-      .relogio-inicial {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 600;
-        color: #eeeeee;
-      }
-
-      .relogio-inicial {
-        text-align: right;
-      }
-
       .cartao-contagem-inicial {
         text-align: center;
       }
@@ -84,18 +119,16 @@
       .titulo-contagem-inicial,
       .status-contagem-inicial {
         margin: 0;
-        font-size: 20px;
+        font-size: clamp(25px, calc(7.692vw - 3.846px), 30px);
         font-weight: 600;
         color: #eeeeee;
       }
 
       .valor-contagem-inicial {
         margin: 16px 0 0;
-        font-size: clamp(2.2rem, 8vw, 3rem);
+        font-size: clamp(50px, calc(30.769vw - 65.385px), 70px);
         font-weight: 700;
-        letter-spacing: 0.12em;
         color: #eeeeee;
-        line-height: 1;
       }
 
       .status-contagem-inicial {
@@ -113,7 +146,7 @@
         margin: 0;
         width: 100%;
         text-align: center;
-        font-size: 20px;
+        font-size: clamp(25px, calc(7.692vw - 3.846px), 30px);
         font-weight: 700;
         color: #eeeeee;
       }
@@ -130,7 +163,6 @@
         color: #111111;
         font-weight: 600;
         text-decoration: none;
-        text-transform: uppercase;
       }
     </style>
     <link rel="preload" href="./styles.css" as="style" />
@@ -140,13 +172,6 @@
   <body class="pagina-inicial">
     <main class="principal-inicial">
       <section class="conteudo-inicial">
-        <div class="cartao-inicial">
-          <div class="linha-cabecalho-inicial">
-            <p class="marca-inicial">Carvalho&Co.</p>
-            <p id="hora-brasilia" class="relogio-inicial">--:--:--</p>
-          </div>
-        </div>
-
         <div class="cartao-inicial cartao-contagem-inicial">
           <p id="contador-detalhe-titulo" class="titulo-contagem-inicial"></p>
           <p id="contador-detalhe-valor" class="valor-contagem-inicial"></p>
@@ -155,14 +180,14 @@
 
         <div class="cartao-inicial">
           <div class="conteudo-acao-inicial">
-            <p class="titulo-acao-inicial">Alguma duvida sobre<br>nossos preços?</p>
-            <a href="./busca.html" class="botao-primario">Clique aqui</a>
+            <p class="titulo-acao-inicial">Veja nossos preços!</p>
+            <a href="/busca" class="botao-primario">Clique aqui</a>
           </div>
         </div>
 
         <div class="cartao-inicial">
           <div class="conteudo-acao-inicial">
-            <p class="titulo-acao-inicial">Quer saber como<br>chegar até nós?</p>
+            <p class="titulo-acao-inicial">Venha nos visitar</p>
             <a
               href="https://maps.app.goo.gl/53wnFwKywyg69iVP7"
               target="_blank"

@@ -3,32 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carvalho&Co.</title>
-    <link
-      rel="preload"
-      href="./fontes/control-upright-regular-tnt.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
+    <title>Consulta de preços | Carvalho&amp;Co.</title>
+    <meta
+      name="description"
+      content="Consulte preços de bebidas e encontre seus produtos favoritos na Adega Carvalho, Carvalho&amp;Co. em Mauá."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://adegacarvalho.com/busca" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Carvalho&amp;Co." />
+    <meta property="og:title" content="Consulta de preços | Carvalho&amp;Co." />
+    <meta
+      property="og:description"
+      content="Consulte preços de bebidas e encontre seus produtos favoritos na Adega Carvalho, Carvalho&amp;Co. em Mauá."
+    />
+    <meta property="og:url" content="https://adegacarvalho.com/busca" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Consulta de preços | Carvalho&amp;Co." />
+    <meta
+      name="twitter:description"
+      content="Consulte preços de bebidas e encontre seus produtos favoritos na Adega Carvalho, Carvalho&amp;Co. em Mauá."
     />
     <link rel="modulepreload" href="./app.js" />
     <style>
-      @font-face {
-        font-family: "Control Upright";
-        src: url("./fontes/control-upright-regular-tnt.woff2") format("woff2");
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-      }
-
       .pagina-busca {
         margin: 0;
         background-color: #111111;
         color: #eeeeee;
-        line-height: 1;
-        font-family: "Control Upright", sans-serif;
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 500;
         font-feature-settings: "ss04" 1;
-        letter-spacing: 0.12em;
       }
 
       .principal-busca {
@@ -54,29 +59,6 @@
         background-color: #1a1a1a;
         box-sizing: border-box;
         padding: 16px;
-      }
-
-      .linha-cabecalho-busca {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-      }
-
-      .marca-busca,
-      .relogio-busca {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 600;
-        color: #eeeeee;
-      }
-
-      .marca-busca {
-        text-transform: uppercase;
-      }
-
-      .relogio-busca {
-        text-align: right;
       }
 
       .painel-busca {
@@ -121,6 +103,15 @@
         display: none;
       }
 
+      .entrada-busca::placeholder {
+        color: #eeeeee;
+        opacity: 0.45;
+      }
+
+      .entrada-busca:focus::placeholder {
+        opacity: 0;
+      }
+
       .botao-secundario {
         border: 1px solid #343434;
         border-radius: 0;
@@ -128,12 +119,23 @@
         color: #111111;
         font-weight: 600;
         text-decoration: none;
-        text-transform: uppercase;
       }
 
       .botao-secundario--pequeno {
         padding: 8px 16px;
         font-size: 14px;
+      }
+
+      .botao-voltar-busca {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        border: 1px solid #343434;
+        background-color: #1a1a1a;
+        color: #eeeeee;
+        text-decoration: none;
       }
 
       .botao-busca-acao {
@@ -174,12 +176,7 @@
   <body class="pagina-busca">
     <main class="principal-busca">
       <section class="conteudo-busca">
-        <div class="cartao-inicial">
-          <div class="linha-cabecalho-busca">
-            <p class="marca-busca">Carvalho&Co.</p>
-            <p id="hora-brasilia" class="relogio-busca">--:--:--</p>
-          </div>
-        </div>
+        <a href="/" class="botao-voltar-busca botao-secundario--pequeno">Voltar</a>
 
         <div id="campo-busca" class="painel-busca">
           <form class="formulario-busca">
@@ -206,6 +203,7 @@
                 id="busca"
                 class="entrada-busca"
                 type="search"
+                placeholder="Exemplo: Skol lata"
                 autocomplete="off"
                 aria-autocomplete="list"
                 aria-expanded="false"
@@ -218,7 +216,7 @@
           </form>
 
           <ul id="lista-resultados" class="lista-resultados-busca" role="listbox">
-            <li class="mensagem-resultados-busca">Digite o nome do produto.</li>
+            <li class="mensagem-resultados-busca">Digite o nome do produto acima</li>
           </ul>
         </div>
       </section>

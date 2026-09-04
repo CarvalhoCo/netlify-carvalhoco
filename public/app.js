@@ -6,8 +6,6 @@ const botaoBusca = document.querySelector("#botao-busca");
 const contadorStatus = document.querySelector("#contador-status");
 const contadorDetalheTitulo = document.querySelector("#contador-detalhe-titulo");
 const contadorDetalheValor = document.querySelector("#contador-detalhe-valor");
-const horaBrasilia = document.querySelector("#hora-brasilia");
-const marcaTopo = document.querySelector(".marca-inicial, .marca-busca");
 const painelFuncionamentoAtivo = Boolean(
   contadorStatus && contadorDetalheTitulo && contadorDetalheValor
 );
@@ -16,21 +14,8 @@ const formatadorMoeda = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL"
 });
-const formatadorHoraBrasilia = new Intl.DateTimeFormat("pt-BR", {
-  timeZone: "America/Sao_Paulo",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: false
-});
-
 const TAMANHO_MINIMO_BUSCA = 2;
 const CHAVE_CONFIG_HORARIOS_LOCAL = "carvalho_horarios_config";
-const CARACTERES_RUIDO_MARCA = "!@#$%&*+-=<>?/\\|[]{}~^0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const ROTACAO_TEXTO_MARCA = ["Carvalho&Co.", "Adega & Tabacaria"];
-const INTERVALO_ROTACAO_MARCA_MS = 10000;
-const INTERVALO_QUADRO_SCRAMBLE_MARCA_MS = 34;
-const PASSO_SCRAMBLE_MARCA = 1.15;
 const ATRASO_CARREGAR_HORARIOS_MS = 400;
 
 const HORARIOS_SEMANA_PADRAO = {
@@ -360,19 +345,13 @@ function atualizarPainelFuncionamento() {
 
   contadorStatus.textContent = `Abre em: ${formatarDuracao(faltamSegundos)}`;
   contadorDetalheTitulo.textContent = "Próxima abertura:";
-  contadorDetalheValor.textContent = `${referenciaDia} às ${proximaAbertura.horarioDia.open}`;
-}
-
-function atualizarHoraBrasilia() {
-  if (!horaBrasilia) {
-    return;
-  }
-
-  horaBrasilia.textContent = formatadorHoraBrasilia.format(new Date());
-}
-
-function normalizarTexto(texto) {
-  return String(texto ?? "").trim();
+  const horarioProximaAbertura = document.createElement("span");
+  horarioProximaAbertura.className = "horario-proxima-abertura";
+  horarioProximaAbertura.textContent = `às ${proximaAbertura.horarioDia.open}`;
+  contadorDetalheValor.replaceChildren(
+    document.createTextNode(`${referenciaDia} `),
+    horarioProximaAbertura
+  );
 }
 
 function removerAcentos(texto) {
@@ -383,113 +362,6 @@ function removerAcentos(texto) {
 
 function normalizarTermoBusca(texto) {
   return removerAcentos(texto).trim().toLowerCase();
-}
-
-function sortearCaractereRuidoMarca() {
-  const indice = Math.floor(Math.random() * CARACTERES_RUIDO_MARCA.length);
-  return CARACTERES_RUIDO_MARCA[indice] || "#";
-}
-
-function montarQuadroScrambleMarca(textoOrigem, textoDestino, progresso) {
-  const tamanhoMaximo = Math.max(textoOrigem.length, textoDestino.length);
-  const limite = Math.max(0, Math.min(tamanhoMaximo, Math.floor(progresso)));
-
-  return Array.from({ length: tamanhoMaximo }, (_, indice) => {
-    const caractereDestino = textoDestino[indice] || "";
-    const caractereOrigem = textoOrigem[indice] || "";
-    const caractereBase = caractereDestino || caractereOrigem;
-
-    if (caractereBase === " ") {
-      return " ";
-    }
-
-    if (indice < limite) {
-      return caractereDestino;
-    }
-
-    if (!caractereBase) {
-      return "";
-    }
-
-    if (Math.random() < 0.16) {
-      return caractereBase;
-    }
-
-    return sortearCaractereRuidoMarca();
-  }).join("");
-}
-
-function animarTransicaoScrambleMarca(textoOrigem, textoDestino) {
-  if (!marcaTopo) {
-    return Promise.resolve();
-  }
-
-  const tamanhoMaximo = Math.max(textoOrigem.length, textoDestino.length);
-  if (tamanhoMaximo === 0) {
-    marcaTopo.textContent = "";
-    return Promise.resolve();
-  }
-
-  return new Promise((resolver) => {
-    let progresso = 0;
-
-    const idIntervalo = setInterval(() => {
-      progresso += PASSO_SCRAMBLE_MARCA;
-      if (progresso >= tamanhoMaximo) {
-        clearInterval(idIntervalo);
-        marcaTopo.textContent = textoDestino;
-        resolver();
-        return;
-      }
-      marcaTopo.textContent = montarQuadroScrambleMarca(textoOrigem, textoDestino, progresso);
-    }, INTERVALO_QUADRO_SCRAMBLE_MARCA_MS);
-  });
-}
-
-function iniciarAnimacaoMarcaAgressiva() {
-  if (!marcaTopo) {
-    return;
-  }
-
-  const textosRotacao = ROTACAO_TEXTO_MARCA
-    .map((item) => normalizarTexto(item))
-    .filter(Boolean);
-
-  if (textosRotacao.length === 0) {
-    return;
-  }
-
-  let indiceAtual = 0;
-  let animando = false;
-
-  marcaTopo.textContent = textosRotacao[indiceAtual];
-  marcaTopo.setAttribute("aria-label", textosRotacao[indiceAtual]);
-
-  const executarProximaTroca = async () => {
-    if (animando) {
-      return;
-    }
-
-    animando = true;
-    const textoOrigem = textosRotacao[indiceAtual];
-    const proximoIndice = (indiceAtual + 1) % textosRotacao.length;
-    const textoDestino = textosRotacao[proximoIndice];
-
-    await animarTransicaoScrambleMarca(textoOrigem, textoDestino);
-    indiceAtual = proximoIndice;
-    marcaTopo.setAttribute("aria-label", textoDestino);
-    animando = false;
-  };
-
-  const idRotacao = setInterval(() => {
-    executarProximaTroca();
-  }, INTERVALO_ROTACAO_MARCA_MS);
-
-  const limparTimers = () => {
-    clearInterval(idRotacao);
-  };
-
-  window.addEventListener("beforeunload", limparTimers, { once: true });
 }
 
 function abrirDropdown() {
@@ -619,7 +491,7 @@ async function executarBusca(termoDigitado) {
   ultimaBusca = termo;
 
   if (termo.length < TAMANHO_MINIMO_BUSCA) {
-    renderizarMensagemDropdown("Digite o nome do produto.");
+    renderizarMensagemDropdown("Digite o nome do produto acima");
     return;
   }
 
@@ -656,11 +528,7 @@ formBusca?.addEventListener("submit", (evento) => {
 });
 
 if (listaResultados && inputBusca && listaResultados.children.length === 0) {
-  renderizarMensagemDropdown("Digite o nome do produto.");
-}
-
-if (horaBrasilia) {
-  atualizarHoraBrasilia();
+  renderizarMensagemDropdown("Digite o nome do produto acima");
 }
 
 if (painelFuncionamentoAtivo) {
@@ -675,12 +543,8 @@ if (painelFuncionamentoAtivo) {
   }, ATRASO_CARREGAR_HORARIOS_MS);
 }
 
-iniciarAnimacaoMarcaAgressiva();
 setInterval(() => {
   if (painelFuncionamentoAtivo) {
     atualizarPainelFuncionamento();
-  }
-  if (horaBrasilia) {
-    atualizarHoraBrasilia();
   }
 }, 1000);

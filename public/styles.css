@@ -1,10 +1,4 @@
-@font-face {
-  font-family: "Control Upright";
-  src: url("./fontes/control-upright-regular-tnt.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap");
 
 .pagina-inicial,
 .pagina-busca,
@@ -12,14 +6,16 @@
   margin: 0;
   background-color: #111111;
   color: #eeeeee;
-  line-height: 1;
-  font-family: "Control Upright", sans-serif;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
   font-feature-settings: "ss04" 1;
-  letter-spacing: 0.12em;
 }
 
-.pagina-inicial {
-  text-transform: uppercase;
+.pagina-inicial *,
+.pagina-busca *,
+.pagina-administracao * {
+  font-family: "IBM Plex Mono", monospace !important;
+  font-weight: 500 !important;
 }
 
 a,
@@ -114,34 +110,6 @@ textarea:focus-visible,
   padding: 16px;
 }
 
-.linha-cabecalho-inicial,
-.linha-cabecalho-busca {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.marca-inicial,
-.relogio-inicial,
-.marca-busca,
-.relogio-busca {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #eeeeee;
-}
-
-.marca-inicial,
-.marca-busca {
-  text-transform: uppercase;
-}
-
-.relogio-inicial,
-.relogio-busca {
-  text-align: right;
-}
-
 .cartao-contagem-inicial {
   text-align: center;
 }
@@ -149,18 +117,21 @@ textarea:focus-visible,
 .titulo-contagem-inicial,
 .status-contagem-inicial {
   margin: 0;
-  font-size: 20px;
+  font-size: clamp(25px, calc(7.692vw - 3.846px), 30px);
   font-weight: 600;
   color: #eeeeee;
 }
 
 .valor-contagem-inicial {
   margin: 16px 0 0;
-  font-size: clamp(2.2rem, 8vw, 3rem);
+  font-size: clamp(50px, calc(30.769vw - 65.385px), 70px);
   font-weight: 700;
-  letter-spacing: 0.12em;
   color: #eeeeee;
-  line-height: 1;
+}
+
+.horario-proxima-abertura {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .status-contagem-inicial {
@@ -178,7 +149,7 @@ textarea:focus-visible,
   margin: 0;
   width: 100%;
   text-align: center;
-  font-size: 20px;
+  font-size: clamp(25px, calc(7.692vw - 3.846px), 30px);
   font-weight: 700;
   color: #eeeeee;
 }
@@ -249,6 +220,15 @@ textarea:focus-visible,
   display: none;
 }
 
+.entrada-busca::placeholder {
+  color: #eeeeee;
+  opacity: 0.45;
+}
+
+.entrada-busca:focus::placeholder {
+  opacity: 0;
+}
+
 .botao-busca-acao {
   position: absolute;
   right: 10px;
@@ -298,7 +278,6 @@ textarea:focus-visible,
   white-space: normal;
   overflow-wrap: anywhere;
   color: #eeeeee;
-  line-height: 1;
 }
 
 .preco-resultado-busca {
@@ -392,6 +371,18 @@ textarea:focus-visible,
 .botao-secundario--pequeno {
   padding: 8px 16px;
   font-size: 14px;
+}
+
+.botao-voltar-busca {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid #343434;
+  background-color: #1a1a1a;
+  color: #eeeeee;
+  text-decoration: none;
 }
 
 .cabecalho-painel-administracao {

@@ -3,7 +3,12 @@
 
 [functions]
   directory = "netlify/functions"
-  included_files = ["netlify/functions/produtos-teste.json"]
+  included_files = ["netlify/functions/produtos-teste.json", "public/index.html"]
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
 
 [[redirects]]
   from = "/api/precos"
@@ -19,3 +24,15 @@
   from = "/api/admin/horarios"
   to = "/.netlify/functions/horarios-admin"
   status = 200
+
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/pagina-inicial"
+  status = 200
+  force = true
