@@ -311,6 +311,8 @@ function atualizarPainelFuncionamento() {
     return;
   }
 
+  contadorDetalheValor.classList.remove("eh-intervalo-horario");
+
   const agora = new Date();
   const horarioDia = obterHorarioEfetivoData(agora);
   const segundosHoje = obterSegundosDiaAtual(agora);
@@ -323,6 +325,7 @@ function atualizarPainelFuncionamento() {
       const faltamSegundos = segundosFechamento - segundosHoje;
       contadorStatus.textContent = `Fecha em: ${formatarDuracao(faltamSegundos)}`;
       contadorDetalheTitulo.textContent = "Horário de hoje:";
+      contadorDetalheValor.classList.add("eh-intervalo-horario");
       contadorDetalheValor.textContent = `${horarioDia.open}–${horarioDia.close}`;
       return;
     }

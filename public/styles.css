@@ -130,6 +130,11 @@ textarea:focus-visible,
   color: #eeeeee;
 }
 
+.valor-contagem-inicial.eh-intervalo-horario {
+  font-size: clamp(46px, calc(15.484vw - 12.065px), 70px);
+  white-space: nowrap;
+}
+
 .horario-proxima-abertura {
   display: inline-block;
   white-space: nowrap;
